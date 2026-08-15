@@ -1,0 +1,643 @@
+body {
+  background: linear-gradient(270deg, #1E3A5F, #0D9488, #38BDF8);
+  background-size: 600% 600%;
+  animation: gradientShift 18s ease infinite;
+  color: #F3F4F6;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #091e41;
+  padding: 0.75rem 1.5rem;
+}
+
+.nav-left .nav-list {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-left .nav-list li a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.nav-left .nav-list li a:hover {
+  text-decoration: underline;
+}
+
+.nav-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.nav-button {
+  color: #fff;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  background: #3498db;
+  transition: background 0.3s;
+}
+
+.nav-button:hover {
+  background: #255bb5;
+}
+
+.nav-button.signup {
+  background: #2ecc71;
+}
+
+.nav-button.signup:hover {
+  background: #27ae60;
+}
+
+.nav-button.logout {
+  background: #e74c3c;
+}
+
+.nav-button.logout:hover {
+  background: #c0392b;
+}
+
+.welcome-text {
+  color: #fff;
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.theme-toggle {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  background: #f39c12;
+  color: #fff;
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  background: #d35400;
+}
+
+/* Hero Banner */
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, #317EFB 0%, #6AA9FF 100%);
+  color: white;
+  border-radius: 10px;
+  margin: 2rem auto;
+  max-width: 1000px;
+}
+
+.hero-image {
+  max-width: 300px;
+  margin-right: 2rem;
+}
+
+.hero-text {
+  max-width: 500px;
+  text-align: left;
+}
+
+.hero-text h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.hero-text p {
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.home-button {
+  padding: 10px 18px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.home-button.signup {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.home-button.signup:hover {
+  background-color: #27ae60;
+}
+
+.home-button.login {
+  background-color: #fff;
+  color: #317EFB;
+}
+
+.home-button.login:hover {
+  background-color: #f1f3f6;
+}
+
+/* Features Section */
+.home-features {
+  text-align: left;
+  max-width: 600px;
+  margin: 2rem auto;
+}
+
+.home-features h2 {
+  color: #222;
+  margin-bottom: 1rem;
+}
+
+.home-features ul {
+  list-style: none;
+  padding: 0;
+}
+
+.home-features li {
+  background: #213572;
+  margin: 0.5rem 0;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+/* Groups Page */
+.groups-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.group-search {
+  width: 100%;
+  padding: 10px;
+  margin: 1rem 0;
+  border: 1px solid #281a75;
+  border-radius: 6px;
+}
+
+.group-filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.group-filters button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #4123aa;
+  cursor: pointer;
+}
+
+.group-filters button.active-filter {
+  background: #317EFB;
+  color: rgb(40, 28, 97);
+  font-weight: bold;
+}
+
+.group-empty {
+  text-align: center;
+  padding: 2rem;
+  background: #426191;
+  border-radius: 8px;
+}
+
+.group-empty img {
+  max-width: 200px;
+  margin-bottom: 1rem;
+}
+
+.create-group-btn {
+  background: #2ecc71;
+  color: rgb(62, 33, 100);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.create-group-btn:hover {
+  background: #27ae60;
+}
+
+.group-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.group-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.group-card h3 {
+  margin: 0 0 0.5rem;
+  color: #317EFB;
+}
+
+.group-card p {
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+.join-btn {
+  background: #317EFB;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.join-btn:hover {
+  background: #255bb5;
+}
+
+.leave-btn {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.leave-btn:hover {
+  background: #c0392b;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.modal-form input,
+.modal-form textarea {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.modal-actions button {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-actions .create-group-btn {
+  background: #2ecc71;
+  color: white;
+}
+
+.modal-actions .create-group-btn:hover {
+  background: #27ae60;
+}
+
+.modal-actions button[type="button"] {
+  background: #eee;
+}
+
+/* Forms */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 300px;
+  margin: 2rem auto;
+}
+
+input, button {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+button {
+  background-color: #317EFB;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #255bb5;
+}
+
+/* Layout */
+.chats-layout {
+  display: flex;
+  height: 100vh;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f5f6fa;
+}
+
+/* Sidebar */
+.chat-sidebar {
+  width: 260px;
+  background: #2f3640;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+}
+
+.chat-sidebar h3 {
+  margin: 10px 0;
+  font-size: 15px;
+  padding: 6px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+  transition: color 0.2s;
+}
+
+.chat-sidebar h3:hover {
+  color: #44bd32;
+}
+
+.chat-sidebar button {
+  background: none;
+  border: none;
+  color: #dcdde1;
+  padding: 8px 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  border-radius: 4px;
+}
+
+.chat-sidebar button:hover {
+  background: #353b48;
+  color: #fff;
+}
+
+.chat-sidebar .active-tab {
+  background: #40739e;
+  color: #fff;
+}
+
+/* Start private chat */
+.start-private-chat {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.start-private-chat select,
+.start-private-chat button {
+  padding: 6px;
+  border-radius: 4px;
+  border: none;
+}
+
+.start-private-chat select {
+  background: #fff;
+  color: #000;
+}
+
+.start-private-chat button {
+  background: #44bd32;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.start-private-chat button:hover {
+  background: #4cd137;
+}
+
+/* Main Chat */
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  background: #f5f6fa;
+}
+
+.chat-message {
+  margin-bottom: 12px;
+  max-width: 70%;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.chat-message.sent {
+  background: #40739e;
+  color: #fff;
+  margin-left: auto;
+}
+
+.chat-message.received {
+  background: #dcdde1;
+  color: #2f3640;
+  margin-right: auto;
+}
+
+.chat-message .timestamp {
+  display: block;
+  font-size: 11px;
+  margin-top: 4px;
+  opacity: 0.7;
+}
+
+/* Empty state */
+.chat-empty {
+  text-align: center;
+  color: #888;
+  margin-top: 50px;
+}
+
+.chat-empty img {
+  width: 120px;
+  opacity: 0.6;
+}
+
+/* Input */
+.chat-input {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+  background: #fff;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  outline: none;
+}
+
+.chat-input .send-btn {
+  margin-left: 10px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 20px;
+  background: #40739e;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.chat-input .send-btn:hover {
+  background: #2980b9;
+  transform: scale(1.05);
+}
+
+/* 📱 Mobile responsiveness */
+@media (max-width: 768px) {
+  .chats-layout {
+    flex-direction: column;
+  }
+
+  .chat-sidebar {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 10px;
+    box-shadow: none;
+    border-bottom: 1px solid #444;
+  }
+
+  .chat-sidebar h3 {
+    display: none; /* hide headings on mobile */
+  }
+
+  .chat-sidebar button {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .start-private-chat {
+    flex-direction: row;
+    margin-top: 0;
+    gap: 5px;
+  }
+
+  .chat-main {
+    flex: 1;
+    height: calc(100vh - 60px); /* adjust for sidebar height */
+  }
+}
+
+.post-feed {
+  margin-top: 1rem;
+}
+
+.loading {
+  text-align: center;
+  font-style: italic;
+  color: #555;
+}
+
+.post-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.post-card {
+  background: #0f2774;
+  border: 1px solid #32124d;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.post-title {
+  margin: 0 0 0.5rem;
+  color: #317EFB;
+  font-size: 1.1rem;
+}
+
+.post-author,
+.post-time {
+  display: block;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.delete-btn {
+  margin-top: 10px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #e74c3c;
+  color: #ffff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.delete-btn:hover {
+  background: #c0392b;
+}
