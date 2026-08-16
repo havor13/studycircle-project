@@ -133,3 +133,15 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+# CSRF settings
+CSRF_TRUSTED_ORIGINS = [
+    "https://studycircle-project-1.onrender.com",  # frontend domain
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
+]
+
+CSRF_COOKIE_SECURE = True        # only send over HTTPS
+CSRF_COOKIE_SAMESITE = 'None'    # allow cross-site requests
+SESSION_COOKIE_SECURE = True     # secure session cookies
+SESSION_COOKIE_SAMESITE = 'None' # allow cross-site requests

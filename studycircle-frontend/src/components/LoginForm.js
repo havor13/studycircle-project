@@ -16,8 +16,12 @@ function LoginForm({ setToken }) {
     setError('');
 
     try {
-      // ✅ Call your backend JWT login endpoint
-      const res = await api.post('auth/login/', { username, password });
+      // ✅ Call backend with credentials enabled
+      const res = await api.post(
+        'auth/login/',
+        { username, password },
+        { withCredentials: true } // important for CORS + cookies
+      );
 
       const accessToken = res.data.access;
       const refreshToken = res.data.refresh;

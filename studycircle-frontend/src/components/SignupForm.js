@@ -15,7 +15,12 @@ function SignupForm({ setToken }) {
     setError('');
 
     try {
-      const res = await api.post('auth/signup/', { username, email, password });
+      // ✅ Call backend signup endpoint with credentials enabled
+      const res = await api.post(
+        'auth/signup/',
+        { username, email, password },
+        { withCredentials: true }
+      );
 
       // ✅ Save both tokens
       const accessToken = res.data.access;
@@ -24,6 +29,7 @@ function SignupForm({ setToken }) {
       setToken(accessToken);
       localStorage.setItem('token', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('username', username);
 
       // ✅ Configure Axios to use token automatically
       api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
