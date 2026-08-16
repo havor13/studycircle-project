@@ -12,7 +12,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security
 SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-default-key")
 DEBUG = os.getenv("DEBUG", "False") == "True"
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+
+# ✅ Fix: Explicitly allow your Render domain
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    "studycircle-project.onrender.com,localhost,127.0.0.1"
+).split(",")
 
 # Application definition
 INSTALLED_APPS = [
@@ -112,8 +117,11 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
-# CORS settings
-CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+# ✅ Fix: Add your frontend Render domain to CORS
+CORS_ALLOWED_ORIGINS = os.getenv(
+    "CORS_ALLOWED_ORIGINS",
+    "https://studycircle-frontend.onrender.com,http://localhost:3000"
+).split(",")
 CORS_ALLOW_CREDENTIALS = True
 
 # Channels + Redis configuration
