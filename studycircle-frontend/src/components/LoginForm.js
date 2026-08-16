@@ -20,7 +20,7 @@ function LoginForm({ setToken }) {
       const res = await api.post(
         'auth/login/',
         { username, password },
-        { withCredentials: true } // important for CORS + cookies
+        { withCredentials: true } // required for CORS + cookies
       );
 
       const accessToken = res.data.access;
@@ -41,7 +41,10 @@ function LoginForm({ setToken }) {
       navigate('/');
     } catch (err) {
       console.error('Login error:', err);
-      setError('Login failed. Please check your credentials.');
+      setError(
+        err.response?.data?.detail ||
+        'Login failed. Please check your credentials.'
+      );
     } finally {
       setLoading(false);
     }
