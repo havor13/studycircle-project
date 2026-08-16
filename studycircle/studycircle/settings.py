@@ -72,15 +72,17 @@ TEMPLATES = [
 WSGI_APPLICATION = "studycircle.wsgi.application"
 ASGI_APPLICATION = "studycircle.asgi.application"
 
-# Database (Render injects DATABASE_URL)
+# Database (PostgreSQL)
 DATABASES = {
-    "default": dj_database_url.config(
-        default=os.getenv("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True
-    )
-}
-
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'havor_cse340_db',
+        'USER': 'havor_cse340_db',
+        'PASSWORD': 'pZPrZxD68vc8cnMDlyKpUrvMSDgwGpya',
+        'HOST': 'dpg-d9mc2jnavr4c73f8a9e0-a.oregon-postgres.render.com',
+        'PORT': '5432',
+    }
+    
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
