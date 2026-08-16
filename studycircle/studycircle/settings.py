@@ -10,7 +10,7 @@ SECRET_KEY = 'django-insecure-ayq7#ai9&_@=nc^bp_7x2hj_!_kcxl=y96-lqa(3*+0-4m(c-p
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "studycircle-project.onrender.com",  # your Render backend
+    "studycircle-backend.onrender.com",  # your Render backend domain
     "localhost",                         # local dev
     "127.0.0.1"                          # local dev
 ]
@@ -117,12 +117,23 @@ SIMPLE_JWT = {
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
+    "https://studycircle-project-1.onrender.com",  # ✅ your frontend domain
     "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://studycircle-frontend.onrender.com",
-
+    "http://127.0.0.1:3000"
 ]
 CORS_ALLOW_CREDENTIALS = True
+
+# CSRF settings
+CSRF_TRUSTED_ORIGINS = [
+    "https://studycircle-project-1.onrender.com",  # ✅ your frontend domain
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
+]
+
+CSRF_COOKIE_SECURE = True        # only send over HTTPS
+CSRF_COOKIE_SAMESITE = 'None'    # allow cross-site requests
+SESSION_COOKIE_SECURE = True     # secure session cookies
+SESSION_COOKIE_SAMESITE = 'None' # allow cross-site requests
 
 # Channels + Redis configuration
 CHANNEL_LAYERS = {
@@ -133,15 +144,3 @@ CHANNEL_LAYERS = {
         },
     },
 }
-
-# CSRF settings
-CSRF_TRUSTED_ORIGINS = [
-    "https://studycircle-project-1.onrender.com",  # frontend domain
-    "http://localhost:3000",
-    "http://127.0.0.1:3000"
-]
-
-CSRF_COOKIE_SECURE = True        # only send over HTTPS
-CSRF_COOKIE_SAMESITE = 'None'    # allow cross-site requests
-SESSION_COOKIE_SECURE = True     # secure session cookies
-SESSION_COOKIE_SAMESITE = 'None' # allow cross-site requests
