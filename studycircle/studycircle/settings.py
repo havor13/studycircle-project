@@ -10,7 +10,7 @@ SECRET_KEY = 'django-insecure-ayq7#ai9&_@=nc^bp_7x2hj_!_kcxl=y96-lqa(3*+0-4m(c-p
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "studycircle-backend.onrender.com",  # your Render backend domain
+    "studycircle-project.onrender.com",  # your Render backend domain
     "localhost",                         # local dev
     "127.0.0.1"                          # local dev
 ]
