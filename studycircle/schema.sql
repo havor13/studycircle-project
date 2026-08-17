@@ -39,13 +39,14 @@ CREATE TABLE group_members (
   UNIQUE (group_id, user_id)
 );
 
--- Group Posts
+-- Group Posts (now with pinned flag)
 DROP TABLE IF EXISTS group_posts CASCADE;
 CREATE TABLE group_posts (
   id SERIAL PRIMARY KEY,
   group_id INT REFERENCES study_groups(id) ON DELETE CASCADE,
   author_id INT REFERENCES users(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
+  pinned BOOLEAN DEFAULT FALSE, -- NEW FIELD
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -66,6 +67,19 @@ CREATE TABLE group_likes (
   post_id INT REFERENCES group_posts(id) ON DELETE CASCADE,
   user_id INT REFERENCES users(id) ON DELETE CASCADE,
   UNIQUE (post_id, user_id)
+);
+
+-- Reactions (NEW TABLE for posts & messages)
+DROP TABLE IF EXISTS reactions CASCADE;
+CREATE TABLE reactions (
+  id SERIAL PRIMARY KEY,
+  post_id INT REFERENCES group_posts(id) ON DELETE CASCADE,
+  message_id INT REFERENCES chat_messages(id) ON DELETE CASCADE,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  emoji VARCHAR(20) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (user_id, post_id, emoji),
+  UNIQUE (user_id, message_id, emoji)
 );
 
 -- Chat Threads (for private conversations)
@@ -106,8 +120,11 @@ CREATE TABLE chat_message_reads (
 
 -- Indexes for performance
 CREATE INDEX idx_group_posts_group_id ON group_posts(group_id);
+CREATE INDEX idx_group_posts_pinned ON group_posts(pinned); -- NEW INDEX
 CREATE INDEX idx_group_comments_post_id ON group_comments(post_id);
 CREATE INDEX idx_group_likes_post_id ON group_likes(post_id);
 CREATE INDEX idx_chat_messages_thread_id ON chat_messages(thread_id);
 CREATE INDEX idx_chat_message_reads_message_id ON chat_message_reads(message_id);
 CREATE INDEX idx_chat_message_reads_user_id ON chat_message_reads(user_id);
+CREATE INDEX idx_reactions_post_id ON reactions(post_id); -- NEW INDEX
+CREATE INDEX idx_reactions_message_id ON reactions(message_id); -- NEW INDEX

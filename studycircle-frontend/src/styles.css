@@ -473,18 +473,18 @@ button:hover {
 
 .chat-messages {
   flex: 1;
-  padding: 15px;
+  padding: 20px;
   overflow-y: auto;
   background: #f5f6fa;
 }
 
 .chat-message {
-  margin-bottom: 12px;
-  max-width: 70%;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 14px;
-  line-height: 1.4;
+  margin-bottom: 14px;
+  max-width: 75%;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 16px;
+  line-height: 1.5;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
@@ -502,8 +502,8 @@ button:hover {
 
 .chat-message .timestamp {
   display: block;
-  font-size: 11px;
-  margin-top: 4px;
+  font-size: 12px;
+  margin-top: 6px;
   opacity: 0.7;
 }
 
@@ -519,36 +519,63 @@ button:hover {
   opacity: 0.6;
 }
 
-/* Input */
+/* Input row with extended background */
 .chat-input {
   display: flex;
-  padding: 10px;
+  padding: 16px;
   border-top: 1px solid #ddd;
+  background: #f0f2f5; /* extended background */
+}
+
+.chat-input-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+
+.chat-input-row textarea {
+  flex: 1;
+  resize: none;
+  padding: 12px;
+  border-radius: 240px;
+  border: 1px solid #ccc;
+  font-size: 16px;
   background: #fff;
 }
 
-.chat-input input {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 20px;
-  outline: none;
+/* Buttons */
+.attach-btn,
+.emoji-btn {
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
 }
 
-.chat-input .send-btn {
-  margin-left: 10px;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 20px;
-  background: #40739e;
+.send-btn {
+  background-color: #40739e;
   color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
   cursor: pointer;
+  font-size: 1.2rem;
   transition: background 0.2s, transform 0.1s;
 }
 
-.chat-input .send-btn:hover {
+.send-btn:hover {
   background: #2980b9;
   transform: scale(1.05);
+}
+
+/* Emoji picker */
+.emoji-picker {
+  position: absolute;
+  bottom: 70px;
+  left: 10px;
+  z-index: 1000;
 }
 
 /* 📱 Mobile responsiveness */
@@ -567,7 +594,7 @@ button:hover {
   }
 
   .chat-sidebar h3 {
-    display: none; /* hide headings on mobile */
+    display: none;
   }
 
   .chat-sidebar button {
@@ -585,8 +612,25 @@ button:hover {
 
   .chat-main {
     flex: 1;
-    height: calc(100vh - 60px); /* adjust for sidebar height */
+    height: calc(100vh - 70px);
   }
+}
+
+/* Unread badge */
+.unread-badge {
+  background-color: red;
+  color: white;
+  border-radius: 12px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  margin-left: 8px;
+}
+
+.attach-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem; /* makes emoji large */
+  cursor: pointer;
 }
 
 .post-feed {
@@ -640,4 +684,94 @@ button:hover {
 
 .delete-btn:hover {
   background: #c0392b;
+}
+
+.pinned {
+  color: #e67e22;
+  margin-left: 6px;
+}
+
+.reaction-bar {
+  margin-top: 8px;
+}
+
+.reaction-btn {
+  margin-right: 6px;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  background: #f0f0f0;
+  cursor: pointer;
+}
+
+.reaction-btn:hover {
+  background: #ddd;
+}
+
+.reaction-list {
+  margin-top: 6px;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.pin-btn {
+  margin-top: 10px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #3498db;
+  color: #fff;
+  cursor: pointer;
+}
+
+.pin-btn:hover {
+  background: #2980b9;
+}
+
+.group-card, .event-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 10px 0;
+  background: #fafafa;
+}
+
+.group-actions, .event-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.create-event-form, .edit-event-form, .modal-form {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.create-event-btn, .events-btn, .join-btn, .leave-btn, .delete-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.events-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.join-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.leave-btn {
+  background-color: #ffc107;
+  color: black;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
 }

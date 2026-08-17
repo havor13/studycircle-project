@@ -58,48 +58,58 @@ function Chats() {
     }
   }, [activeThread]);
 
-  // WebSocket connection
+  // WebSocket connection with JWT
   useEffect(() => {
     if (!activeThread) return;
 
+    const token = localStorage.getItem('accessToken'); // JWT from storage/context
     const wsUrl =
       activeThread.chat_type === 'general'
-        ? 'ws://localhost:8000/ws/chats/'
-        : `ws://localhost:8000/ws/chats/${activeThread.id}/`;
+        ? `ws://localhost:8000/ws/chats/?token=${token}`
+        : `ws://localhost:8000/ws/chats/${activeThread.id}/?token=${token}`;
 
     const ws = new WebSocket(wsUrl);
     setSocket(ws);
 
     ws.onopen = () => console.log('Connected to WebSocket');
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.thread === activeThread.id || activeThread.chat_type === 'general') {
-        setMessages(prev => [
-          ...prev,
-          { sender: data.sender, content: data.message, created_at: new Date().toISOString() }
-        ]);
+      try {
+        const data = JSON.parse(event.data);
+        if (data.thread === activeThread.id || activeThread.chat_type === 'general') {
+          setMessages(prev => [
+            ...prev,
+            { sender: data.sender, content: data.message, created_at: new Date().toISOString() }
+          ]);
+        }
+      } catch (err) {
+        console.error('Error parsing WebSocket message:', err);
       }
     };
+    ws.onerror = (err) => console.error('WebSocket error:', err);
     ws.onclose = () => console.log('WebSocket disconnected');
 
-    return () => ws.close();
+    return () => {
+      ws.close();
+      setSocket(null);
+    };
   }, [activeThread]);
 
   // Send message
   const handleSend = async (msg) => {
     if (!socket || !activeThread) return;
 
-    const msgPayload = { sender: 'Me', message: msg, thread: activeThread.id };
-    socket.send(JSON.stringify(msgPayload));
+    const userId = localStorage.getItem('userId'); // replace with actual auth context
+    const msgPayload = { sender: userId, message: msg, thread: activeThread.id };
 
     try {
+      socket.send(JSON.stringify(msgPayload));
       await api.post('messages/', {
         thread: activeThread.id,
-        sender: 1, // replace with logged-in user ID
+        sender: userId,
         content: msg
       });
     } catch (err) {
-      console.error('Failed to save message:', err);
+      console.error('Failed to send/save message:', err);
     }
   };
 
@@ -107,8 +117,9 @@ function Chats() {
   const handleStartPrivateChat = async () => {
     if (!selectedUser) return;
     try {
+      const userId = localStorage.getItem('userId');
       const res = await api.post('threads/private/', {
-        user1: 1, // replace with logged-in user ID
+        user1: userId,
         user2: selectedUser
       });
       setThreads(prev => [...prev, res.data]);

@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api/api';
 import '../styles.css';
+import { useNavigate } from 'react-router-dom'; // ✅ for navigation to events
 
-function GroupsPage() {
+function Groups() {
   const [groups, setGroups] = useState([]);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [newGroup, setNewGroup] = useState({ name: '', description: '', subject: '' });
   const [filter, setFilter] = useState('all'); // ✅ filter state
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchGroups = async () => {
@@ -58,6 +60,11 @@ function GroupsPage() {
     }
   };
 
+  const handleViewEvents = (groupId) => {
+    // Navigate to group events page
+    navigate(`/groups/${groupId}/events`);
+  };
+
   return (
     <div className="groups-container">
       <h2>👥 Study Groups</h2>
@@ -106,12 +113,20 @@ function GroupsPage() {
               <p>{group.description}</p>
               <p><strong>Subject:</strong> {group.subject}</p>
               <p><strong>Members:</strong> {group.members_count}</p>
-              <button
-                className={group.is_member ? 'leave-btn' : 'join-btn'}
-                onClick={() => handleJoinLeave(group.id, group.is_member)}
-              >
-                {group.is_member ? 'Leave Group' : 'Join Group'}
-              </button>
+              <div className="group-actions">
+                <button
+                  className={group.is_member ? 'leave-btn' : 'join-btn'}
+                  onClick={() => handleJoinLeave(group.id, group.is_member)}
+                >
+                  {group.is_member ? 'Leave Group' : 'Join Group'}
+                </button>
+                <button
+                  className="events-btn"
+                  onClick={() => handleViewEvents(group.id)}
+                >
+                  View Events
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -154,4 +169,4 @@ function GroupsPage() {
   );
 }
 
-export default GroupsPage;
+export default Groups;

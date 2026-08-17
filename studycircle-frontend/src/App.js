@@ -5,6 +5,7 @@ import LoginForm from './components/LoginForm';
 import SignupForm from './components/SignupForm';
 import Home from './pages/Home';
 import Groups from './pages/Groups';
+import GroupEvents from './pages/GroupEvents'; // ✅ Events page
 import Posts from './pages/Posts';
 import Chats from './pages/Chats';
 import './styles.css'; // ✅ Global stylesheet import
@@ -22,7 +23,7 @@ function App() {
 
   return (
     <Router>
-      {/* ✅ Pass setToken and token to Navbar so it can show Login/Signup or Logout */}
+      {/* ✅ Navbar receives token state so it can toggle Login/Signup vs Logout */}
       <Navbar setToken={setToken} token={token} />
       <main className="main">
         <Routes>
@@ -37,6 +38,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Groups />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/groups/:groupId/events"
+            element={
+              <ProtectedRoute>
+                <GroupEvents />
               </ProtectedRoute>
             }
           />

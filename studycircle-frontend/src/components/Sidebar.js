@@ -16,37 +16,41 @@ function Sidebar({
   const generalThreads = threads.filter(t => t.chat_type === 'general');
   const privateThreads = threads.filter(t => t.chat_type === 'private');
 
+  const renderThreadButton = (thread, label) => (
+    <button
+      key={thread.id}
+      type="button"
+      className={activeThread?.id === thread.id ? 'active-tab' : ''}
+      onClick={() => setActiveThread(thread)}
+    >
+      <span>{label}</span>
+      {/* Show unread badge if unread_count exists */}
+      {thread.unread_count > 0 && (
+        <span className="unread-badge">{thread.unread_count}</span>
+      )}
+    </button>
+  );
+
   return (
     <div className="chat-sidebar">
+      {/* General Chats */}
       <h3 onClick={() => setShowGeneral(!showGeneral)}>
         {showGeneral ? '▼' : '▶'} General Chat
       </h3>
-      {showGeneral && generalThreads.map(thread => (
-        <button
-          key={thread.id}
-          type="button"
-          className={activeThread?.id === thread.id ? 'active-tab' : ''}
-          onClick={() => setActiveThread(thread)}
-        >
-          General Discussion
-        </button>
-      ))}
+      {showGeneral && generalThreads.map(thread =>
+        renderThreadButton(thread, 'General Discussion')
+      )}
 
+      {/* Private Chats */}
       <h3 onClick={() => setShowPrivate(!showPrivate)}>
         {showPrivate ? '▼' : '▶'} Private Chats
       </h3>
-      {showPrivate && privateThreads.map(thread => (
-        <button
-          key={thread.id}
-          type="button"
-          className={activeThread?.id === thread.id ? 'active-tab' : ''}
-          onClick={() => setActiveThread(thread)}
-        >
-          {Array.isArray(thread.participants)
-            ? thread.participants.map(p => p.username || p.name).join(', ')
-            : `Private Chat #${thread.id}`}
-        </button>
-      ))}
+      {showPrivate && privateThreads.map(thread => {
+        const participants = Array.isArray(thread.participants)
+          ? thread.participants.map(p => p.username || p.name).join(', ')
+          : `Private Chat #${thread.id}`;
+        return renderThreadButton(thread, participants);
+      })}
 
       {/* Start private chat */}
       {showPrivate && (

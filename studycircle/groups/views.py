@@ -1,6 +1,11 @@
 from rest_framework import viewsets, permissions
-from .models import StudyGroup, GroupMember, Resource
-from .serializers import StudyGroupSerializer, GroupMemberSerializer, ResourceSerializer
+from .models import StudyGroup, GroupMember, Resource, Event
+from .serializers import (
+    StudyGroupSerializer,
+    GroupMemberSerializer,
+    ResourceSerializer,
+    EventSerializer,
+)
 
 
 class StudyGroupViewSet(viewsets.ModelViewSet):
@@ -54,3 +59,23 @@ class ResourceViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Automatically attach resource to the logged-in user if needed
         serializer.save()
+
+
+class EventViewSet(viewsets.ModelViewSet):
+    """
+    Handles CRUD operations for Events linked to Study Groups.
+    """
+    queryset = Event.objects.all().order_by("start_at")
+    serializer_class = EventSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Allow filtering events by group ID via ?group=<id>
+        group_id = self.request.query_params.get("group")
+        if group_id:
+            return Event.objects.filter(group_id=group_id).order_by("start_at")
+        return super().get_queryset()
+
+    def perform_create(self, serializer):
+        # Automatically set the creator to the logged-in user
+        serializer.save(created_by=self.request.user)

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import StudyGroup, GroupMember, Resource
+from .models import StudyGroup, GroupMember, Resource, Event
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -54,3 +54,25 @@ class ResourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Resource
         fields = ["id", "group", "title", "url", "description", "created_at"]
+
+
+class EventSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Event model.
+    Includes creator details.
+    """
+    created_by = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Event
+        fields = [
+            "id",
+            "group",
+            "title",
+            "description",
+            "start_at",
+            "end_at",
+            "location",
+            "created_by",
+            "created_at",
+        ]
