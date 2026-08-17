@@ -115,20 +115,21 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# CORS settings
 CORS_ALLOWED_ORIGINS = [
-    "https://studycircle-project-1.onrender.com",  # ✅ your frontend domain
+    "https://studycircle-project.onrender.com",   # ✅ add this
+    "https://studycircle-project-1.onrender.com",
     "http://localhost:3000",
     "http://127.0.0.1:3000"
 ]
 CORS_ALLOW_CREDENTIALS = True
 
-# CSRF settings
 CSRF_TRUSTED_ORIGINS = [
-    "https://studycircle-project-1.onrender.com",  # ✅ your frontend domain
+    "https://studycircle-project.onrender.com",   # ✅ add this
+    "https://studycircle-project-1.onrender.com",
     "http://localhost:3000",
     "http://127.0.0.1:3000"
 ]
+
 
 CSRF_COOKIE_SECURE = True        # only send over HTTPS
 CSRF_COOKIE_SAMESITE = 'None'    # allow cross-site requests
