@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.auth.models import User
@@ -8,6 +8,7 @@ from .serializers import ChatThreadSerializer, ChatMessageSerializer
 class ThreadViewSet(viewsets.ModelViewSet):
     queryset = ChatThread.objects.all()
     serializer_class = ChatThreadSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     @action(detail=False, methods=['post'])
     def private(self, request):
@@ -35,6 +36,7 @@ class ThreadViewSet(viewsets.ModelViewSet):
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = ChatMessage.objects.all().order_by('created_at')
     serializer_class = ChatMessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         """

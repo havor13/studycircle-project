@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// Decide base URL depending on environment
+// ✅ Decide base URL depending on environment
 const apiBaseUrl =
   process.env.REACT_APP_API_URL ||
   (process.env.NODE_ENV === 'development'
@@ -9,10 +9,11 @@ const apiBaseUrl =
 
 const api = axios.create({
   baseURL: apiBaseUrl,
-  withCredentials: true,
+  // ❌ Remove withCredentials unless you’re using cookie-based auth
+  // JWT doesn’t need cookies, only headers
 });
 
-// Attach token from localStorage if available
+// ✅ Attach token from Local Storage if available
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -24,7 +25,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Handle expired tokens automatically
+// ✅ Handle expired tokens automatically
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -35,22 +36,27 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem('refreshToken');
-        if (!refreshToken) throw new Error('No refresh token');
+        if (!refreshToken) throw new Error('No refresh token found');
 
-        const res = await axios.post(
-          `${apiBaseUrl}/auth/refresh/`,
-          { refresh: refreshToken }
-        );
+        // Request new access token
+        const res = await axios.post(`${apiBaseUrl}/auth/refresh/`, {
+          refresh: refreshToken,
+        });
 
         const newAccessToken = res.data.access;
         localStorage.setItem('token', newAccessToken);
 
+        // Update axios defaults and retry original request
         api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
 
         return api(originalRequest);
       } catch (refreshError) {
         console.error('Token refresh failed:', refreshError);
+        // Optional: clear storage and redirect to login
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/login';
       }
     }
 

@@ -16,18 +16,20 @@ function LoginForm({ setToken }) {
     setError('');
 
     try {
-      // ✅ Call backend with credentials enabled
+      // ✅ Call backend login endpoint
       const res = await api.post(
-        'auth/login/',
-        { username, password },
-        { withCredentials: true } // required for CORS + cookies
+        '/api/auth/login/', // full path ensures correct routing
+        { username, password }
       );
 
       const accessToken = res.data.access;
       const refreshToken = res.data.refresh;
 
-      // ✅ Save tokens + username
-      setToken(accessToken);
+      if (!accessToken || !refreshToken) {
+        throw new Error('No tokens returned from server');
+      }
+
+      // ✅ Save tokens + username in Local Storage
       localStorage.setItem('token', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('username', username);
@@ -35,9 +37,10 @@ function LoginForm({ setToken }) {
       // ✅ Attach token to axios instance
       api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
-      alert('✅ Login successful!');
+      // ✅ Update parent state
+      setToken(accessToken);
 
-      // ✅ Redirect to homepage
+      alert('✅ Login successful!');
       navigate('/');
     } catch (err) {
       console.error('Login error:', err);

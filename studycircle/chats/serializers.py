@@ -1,18 +1,34 @@
 from rest_framework import serializers
 from .models import ChatThread, ChatMessage
 
-class ChatMessageSerializer(serializers.ModelSerializer):
-    sender = serializers.StringRelatedField()  # shows username instead of ID
-
-    class Meta:
-        model = ChatMessage
-        fields = ['id', 'thread', 'sender', 'content', 'created_at', 'is_read']
-
-
 class ChatThreadSerializer(serializers.ModelSerializer):
-    participants = serializers.StringRelatedField(many=True)  # show usernames
-    messages = ChatMessageSerializer(many=True, read_only=True)
+    # Show usernames instead of just IDs
+    user1_username = serializers.CharField(source='user1.username', read_only=True)
+    user2_username = serializers.CharField(source='user2.username', read_only=True)
 
     class Meta:
         model = ChatThread
-        fields = ['id', 'participants', 'chat_type', 'created_at', 'messages']
+        fields = [
+            'id',
+            'chat_type',       # e.g. "general" or "private"
+            'user1',           # FK to User
+            'user2',           # FK to User
+            'user1_username',  # convenience field
+            'user2_username',  # convenience field
+            'created_at',
+        ]
+
+
+class ChatMessageSerializer(serializers.ModelSerializer):
+    sender_username = serializers.CharField(source='sender.username', read_only=True)
+
+    class Meta:
+        model = ChatMessage
+        fields = [
+            'id',
+            'thread',          # FK to ChatThread
+            'sender',          # FK to User
+            'sender_username', # convenience field
+            'content',
+            'created_at',
+        ]
