@@ -107,16 +107,17 @@ function Chats() {
 
     const payload = {
       thread: activeThread.id,
-      sender: localStorage.getItem('userId'),
       content: typeof msg === 'string' ? msg : msg.content,
     };
 
     try {
+      // ✅ WebSocket broadcast
       socket.send(JSON.stringify(payload));
+      // ✅ REST API save
       const res = await api.post('messages/', payload);
       setMessages(prev => [...prev, res.data]);
     } catch (err) {
-      console.error('Failed to send/save message:', err);
+      console.error('Failed to send/save message:', err.response?.data || err);
     }
   };
 
@@ -150,8 +151,9 @@ function Chats() {
       />
       <div className="chat-main">
         <ChatBox
-          messages={messages}
+          threadId={activeThread?.id}
           onSend={handleSend}
+          messages={messages}
         />
       </div>
     </div>

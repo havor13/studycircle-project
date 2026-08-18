@@ -18,10 +18,6 @@ class ThreadViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"])
     def private(self, request):
-        """
-        Create or return an existing private thread between two users.
-        Expects JSON: { "user1": <id>, "user2": <id> }
-        """
         user1_id = request.data.get("user1")
         user2_id = request.data.get("user2")
 
@@ -34,14 +30,12 @@ class ThreadViewSet(viewsets.ModelViewSet):
         except User.DoesNotExist:
             return Response({"error": "One or both users not found."}, status=404)
 
-        # ✅ Create thread + participants
         thread = ChatThread.objects.create()
         ChatParticipant.objects.create(thread=thread, user=user1)
         ChatParticipant.objects.create(thread=thread, user=user2)
 
         serializer = self.get_serializer(thread)
         return Response(serializer.data)
-
 
 # 🔹 Messages
 class MessageViewSet(viewsets.ModelViewSet):
@@ -50,15 +44,15 @@ class MessageViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        """
-        Optionally filter messages by thread ID using ?thread=<id>
-        """
         queryset = super().get_queryset()
         thread_id = self.request.query_params.get("thread")
         if thread_id:
             queryset = queryset.filter(thread_id=thread_id)
         return queryset
 
+    def perform_create(self, serializer):
+        # ✅ Infer sender from authenticated user
+        serializer.save(sender=self.request.user)
 
 # 🔹 Read Receipts
 class MessageReadViewSet(viewsets.ModelViewSet):
@@ -67,9 +61,6 @@ class MessageReadViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        """
-        Optionally filter reads by message ID using ?message=<id>
-        """
         queryset = super().get_queryset()
         message_id = self.request.query_params.get("message")
         if message_id:

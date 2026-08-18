@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import api from '../api/api';   // ✅ use axios client
+import api from '../api/api';
 import '../styles.css';
 
-function ChatBox({ threadId, userId }) {
+function ChatBox({ threadId }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef(null);
 
-  // Load messages for thread
   useEffect(() => {
     if (!threadId) return;
     api.get('messages/', { params: { thread: threadId } })
@@ -15,14 +14,12 @@ function ChatBox({ threadId, userId }) {
       .catch(err => console.error('Failed to fetch messages:', err));
   }, [threadId]);
 
-  // Auto-scroll
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
 
-  // Send message
   const handleSend = async (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
@@ -30,13 +27,12 @@ function ChatBox({ threadId, userId }) {
     try {
       const res = await api.post('messages/', {
         thread: threadId,
-        sender: userId,
         content: newMessage
       });
       setMessages(prev => [...prev, res.data]);
       setNewMessage('');
     } catch (err) {
-      console.error('Failed to send message:', err);
+      console.error('Failed to send message:', err.response?.data || err);
     }
   };
 
