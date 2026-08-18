@@ -18,7 +18,7 @@ function LoginForm({ setToken }) {
     try {
       // ✅ Call backend login endpoint
       const res = await api.post(
-        '/api/auth/login/', // full path ensures correct routing
+        '//auth/login/', // full path ensures correct routing
         { username, password }
       );
 
