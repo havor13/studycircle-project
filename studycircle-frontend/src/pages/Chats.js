@@ -84,7 +84,7 @@ function Chats() {
           ...prev,
           {
             sender: data.sender,
-            content: data.content,   // ✅ now matches ChatBox
+            content: data.content,
             type: data.type || 'text',
             name: data.name || null,
             thread: data.thread,
@@ -104,8 +104,8 @@ function Chats() {
     };
   }, [activeThread]);
 
-  // Send message
-  const handleSend = (msg) => {
+  // Send message (persist to backend too)
+  const handleSend = async (msg) => {
     if (!socket || !activeThread) return;
 
     let payload;
@@ -122,8 +122,15 @@ function Chats() {
 
     try {
       socket.send(JSON.stringify(payload));
+      // Save to backend
+      await api.post('messages/', {
+        thread: activeThread.id,
+        content: payload.message,
+        type: payload.type || 'text',
+        name: payload.name || null
+      });
     } catch (err) {
-      console.error('Failed to send message:', err);
+      console.error('Failed to send/save message:', err);
     }
   };
 
