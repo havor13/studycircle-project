@@ -9,6 +9,7 @@ from chats.models import ChatMessage, ChatThread  # adjust import paths
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        # ✅ Authenticate via JWT
         query_string = self.scope["query_string"].decode()
         token = None
         if "token=" in query_string:
@@ -31,7 +32,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
-        # Room selection
+        # ✅ Room selection
         self.thread_id = self.scope['url_route']['kwargs'].get('thread_id', None)
         if self.thread_id:
             self.room_group_name = f"chat_{self.thread_id}"
@@ -46,14 +47,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        content = data.get("message")  # frontend sends "message"
+        content = data.get("message")
         thread_id = data.get("thread", self.thread_id)
-        msg_type = data.get("type", "text")
-        msg_name = data.get("name")
 
         sender = self.scope["user"]
 
-        # Persist message
+        # ✅ Persist message in DB
         thread = None
         if thread_id:
             try:
@@ -61,35 +60,35 @@ class ChatConsumer(AsyncWebsocketConsumer):
             except ChatThread.DoesNotExist:
                 thread = None
 
+        msg_obj = None
         if thread:
-            await ChatMessage.objects.acreate(
+            msg_obj = await ChatMessage.objects.acreate(
                 thread=thread,
                 sender=sender,
-                content=content,
-                type=msg_type,
-                name=msg_name
+                content=content
             )
 
-        # Broadcast with consistent keys
+        # ✅ Broadcast with consistent keys
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 "type": "chat_message",
+                "id": msg_obj.id if msg_obj else None,
+                "sender": sender.id,
+                "sender_username": sender.username,
                 "content": content,
-                "sender": sender.username,
                 "thread": thread_id,
-                "msg_type": msg_type,
-                "msg_name": msg_name,
                 "created_at": timezone.now().isoformat(),
             }
         )
 
     async def chat_message(self, event):
+        # ✅ Send JSON payload matching frontend expectations
         await self.send(text_data=json.dumps({
-            "content": event["content"],
-            "sender": event["sender"],
-            "thread": event["thread"],
-            "type": event.get("msg_type", "text"),
-            "name": event.get("msg_name"),
+            "id": event.get("id"),
+            "sender": event.get("sender"),
+            "sender_username": event.get("sender_username"),
+            "content": event.get("content"),
+            "thread": event.get("thread"),
             "created_at": event.get("created_at"),
         }))

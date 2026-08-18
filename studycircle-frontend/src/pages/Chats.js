@@ -4,6 +4,12 @@ import '../styles.css';
 import ChatBox from '../components/ChatBox';
 import Sidebar from '../components/Sidebar';
 
+// ✅ Base WebSocket URL: local vs production
+const WS_BASE =
+  process.env.NODE_ENV === 'development'
+    ? 'ws://localhost:8000/ws/chats'
+    : 'wss://studycircle-project.onrender.com/ws/chats';
+
 function Chats() {
   const [threads, setThreads] = useState([]);
   const [activeThread, setActiveThread] = useState(null);
@@ -63,16 +69,7 @@ function Chats() {
     if (!activeThread) return;
 
     const token = localStorage.getItem('access');
-    const baseUrl =
-      process.env.NODE_ENV === 'development'
-        ? 'ws://localhost:8000/ws/chats'
-        : 'wss://studycircle-project.onrender.com/ws/chats';
-
-    const wsUrl =
-      activeThread.chat_type === 'general'
-        ? `${baseUrl}/?token=${token}`
-        : `${baseUrl}/${activeThread.id}/?token=${token}`;
-
+    const wsUrl = `${WS_BASE}/${activeThread.id}/?token=${token}`;
     const ws = new WebSocket(wsUrl);
     setSocket(ws);
 
@@ -83,10 +80,10 @@ function Chats() {
         setMessages(prev => [
           ...prev,
           {
+            id: data.id,
             sender: data.sender,
+            sender_username: data.sender_username,
             content: data.content,
-            type: data.type || 'text',
-            name: data.name || null,
             thread: data.thread,
             created_at: data.created_at,
           }
@@ -104,31 +101,20 @@ function Chats() {
     };
   }, [activeThread]);
 
-  // Send message (persist to backend too)
+  // Send message
   const handleSend = async (msg) => {
     if (!socket || !activeThread) return;
 
-    let payload;
-    if (typeof msg === 'string') {
-      payload = { message: msg, thread: activeThread.id };
-    } else {
-      payload = {
-        message: msg.content,
-        thread: activeThread.id,
-        type: msg.type,
-        name: msg.name
-      };
-    }
+    const payload = {
+      thread: activeThread.id,
+      sender: localStorage.getItem('userId'),
+      content: typeof msg === 'string' ? msg : msg.content,
+    };
 
     try {
       socket.send(JSON.stringify(payload));
-      // Save to backend
-      await api.post('messages/', {
-        thread: activeThread.id,
-        content: payload.message,
-        type: payload.type || 'text',
-        name: payload.name || null
-      });
+      const res = await api.post('messages/', payload);
+      setMessages(prev => [...prev, res.data]);
     } catch (err) {
       console.error('Failed to send/save message:', err);
     }

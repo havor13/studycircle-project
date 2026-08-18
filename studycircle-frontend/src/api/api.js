@@ -1,18 +1,19 @@
 import axios from 'axios';
 
-// Decide base URL depending on environment
+// ✅ Decide base URL depending on environment
 const apiBaseUrl =
   process.env.REACT_APP_API_URL ||
   (process.env.NODE_ENV === 'development'
     ? 'http://127.0.0.1:8000/api'
     : 'https://studycircle-project.onrender.com/api');
 
+// ✅ Create axios instance
 const api = axios.create({
   baseURL: apiBaseUrl,
   withCredentials: true,
 });
 
-// ✅ Attach token from localStorage if available
+// ✅ Attach access token from localStorage if available
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access');
