@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../api/api'; // axios instance with JWT interceptors
+import api from '../api/api';
 import '../styles.css';
 import ChatBox from '../components/ChatBox';
 import Sidebar from '../components/Sidebar';
@@ -58,11 +58,11 @@ function Chats() {
     }
   }, [activeThread]);
 
-  // WebSocket connection with JWT
+  // WebSocket connection
   useEffect(() => {
     if (!activeThread) return;
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access');
     const baseUrl =
       process.env.NODE_ENV === 'development'
         ? 'ws://localhost:8000/ws/chats'
@@ -84,8 +84,11 @@ function Chats() {
           ...prev,
           {
             sender: data.sender,
-            content: data.message,
-            created_at: new Date().toISOString()
+            content: data.content,   // ✅ now matches ChatBox
+            type: data.type || 'text',
+            name: data.name || null,
+            thread: data.thread,
+            created_at: data.created_at,
           }
         ]);
       } catch (err) {
@@ -101,16 +104,14 @@ function Chats() {
     };
   }, [activeThread]);
 
-  // Send message (text or attachment)
+  // Send message
   const handleSend = (msg) => {
     if (!socket || !activeThread) return;
 
     let payload;
     if (typeof msg === 'string') {
-      // Text message
       payload = { message: msg, thread: activeThread.id };
     } else {
-      // Attachment or structured message
       payload = {
         message: msg.content,
         thread: activeThread.id,
