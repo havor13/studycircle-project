@@ -119,7 +119,7 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     "https://studycircle-project-1.onrender.com",  # ✅ your frontend domain
     "http://localhost:3000",
-    "http://127.0.0.1:3000"
+    "http://127.0.0.1:8000"
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -127,7 +127,7 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     "https://studycircle-project-1.onrender.com",  # ✅ your frontend domain
     "http://localhost:3000",
-    "http://127.0.0.1:3000"
+    "http://127.0.0.1:8000"
 ]
 
 CSRF_COOKIE_SECURE = True        # only send over HTTPS
