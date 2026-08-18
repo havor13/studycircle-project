@@ -17,10 +17,7 @@ function LoginForm({ setToken }) {
 
     try {
       // ✅ Call backend login endpoint
-      const res = await api.post(
-        '//auth/login/', // full path ensures correct routing
-        { username, password }
-      );
+      const res = await api.post('auth/login/', { username, password });
 
       const accessToken = res.data.access;
       const refreshToken = res.data.refresh;
@@ -29,7 +26,7 @@ function LoginForm({ setToken }) {
         throw new Error('No tokens returned from server');
       }
 
-      // ✅ Save tokens + username in Local Storage
+      // ✅ Save tokens + username
       localStorage.setItem('token', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('username', username);
@@ -50,6 +47,27 @@ function LoginForm({ setToken }) {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ✅ Helper to refresh token manually if needed
+  const handleRefresh = async () => {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (!refreshToken) throw new Error('No refresh token found');
+
+      const res = await api.post('auth/refresh/', { refresh: refreshToken });
+      const newAccessToken = res.data.access;
+
+      localStorage.setItem('token', newAccessToken);
+      api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+      setToken(newAccessToken);
+
+      alert('🔄 Token refreshed!');
+    } catch (err) {
+      console.error('Refresh error:', err);
+      setError('Session expired. Please log in again.');
+      navigate('/login');
     }
   };
 
@@ -77,6 +95,11 @@ function LoginForm({ setToken }) {
       </form>
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      {/* ✅ Optional manual refresh button for testing */}
+      <button onClick={handleRefresh} style={{ marginTop: '10px' }}>
+        Refresh Token
+      </button>
     </div>
   );
 }
