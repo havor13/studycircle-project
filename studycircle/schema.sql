@@ -39,14 +39,14 @@ CREATE TABLE group_members (
   UNIQUE (group_id, user_id)
 );
 
--- Group Posts (now with pinned flag)
+-- Group Posts (with pinned flag)
 DROP TABLE IF EXISTS group_posts CASCADE;
 CREATE TABLE group_posts (
   id SERIAL PRIMARY KEY,
   group_id INT REFERENCES study_groups(id) ON DELETE CASCADE,
   author_id INT REFERENCES users(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
-  pinned BOOLEAN DEFAULT FALSE, -- NEW FIELD
+  pinned BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -69,27 +69,14 @@ CREATE TABLE group_likes (
   UNIQUE (post_id, user_id)
 );
 
--- Reactions (NEW TABLE for posts & messages)
-DROP TABLE IF EXISTS reactions CASCADE;
-CREATE TABLE reactions (
-  id SERIAL PRIMARY KEY,
-  post_id INT REFERENCES group_posts(id) ON DELETE CASCADE,
-  message_id INT REFERENCES chat_messages(id) ON DELETE CASCADE,
-  user_id INT REFERENCES users(id) ON DELETE CASCADE,
-  emoji VARCHAR(20) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE (user_id, post_id, emoji),
-  UNIQUE (user_id, message_id, emoji)
-);
-
--- Chat Threads (for private conversations)
+-- Chat Threads
 DROP TABLE IF EXISTS chat_threads CASCADE;
 CREATE TABLE chat_threads (
   id SERIAL PRIMARY KEY,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Chat Participants (many-to-many between users and threads)
+-- Chat Participants
 DROP TABLE IF EXISTS chat_participants CASCADE;
 CREATE TABLE chat_participants (
   id SERIAL PRIMARY KEY,
@@ -108,7 +95,7 @@ CREATE TABLE chat_messages (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Read Receipts (per user basis)
+-- Read Receipts
 DROP TABLE IF EXISTS chat_message_reads CASCADE;
 CREATE TABLE chat_message_reads (
   id SERIAL PRIMARY KEY,
@@ -118,13 +105,26 @@ CREATE TABLE chat_message_reads (
   UNIQUE (message_id, user_id)
 );
 
--- Indexes for performance
+-- Reactions (AFTER chat_messages exists)
+DROP TABLE IF EXISTS reactions CASCADE;
+CREATE TABLE reactions (
+  id SERIAL PRIMARY KEY,
+  post_id INT REFERENCES group_posts(id) ON DELETE CASCADE,
+  message_id INT REFERENCES chat_messages(id) ON DELETE CASCADE,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  emoji VARCHAR(20) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (user_id, post_id, emoji),
+  UNIQUE (user_id, message_id, emoji)
+);
+
+-- Indexes
 CREATE INDEX idx_group_posts_group_id ON group_posts(group_id);
-CREATE INDEX idx_group_posts_pinned ON group_posts(pinned); -- NEW INDEX
+CREATE INDEX idx_group_posts_pinned ON group_posts(pinned);
 CREATE INDEX idx_group_comments_post_id ON group_comments(post_id);
 CREATE INDEX idx_group_likes_post_id ON group_likes(post_id);
 CREATE INDEX idx_chat_messages_thread_id ON chat_messages(thread_id);
 CREATE INDEX idx_chat_message_reads_message_id ON chat_message_reads(message_id);
 CREATE INDEX idx_chat_message_reads_user_id ON chat_message_reads(user_id);
-CREATE INDEX idx_reactions_post_id ON reactions(post_id); -- NEW INDEX
-CREATE INDEX idx_reactions_message_id ON reactions(message_id); -- NEW INDEX
+CREATE INDEX idx_reactions_post_id ON reactions(post_id);
+CREATE INDEX idx_reactions_message_id ON reactions(message_id);
