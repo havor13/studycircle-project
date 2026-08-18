@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles.css';
 import Picker from '@emoji-mart/react';
 import data from '@emoji-mart/data';
@@ -7,11 +7,19 @@ function ChatBox({ messages, onSend }) {
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
+  const [modalImage, setModalImage] = useState(null); // ✅ new state
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
 
   const handleSend = (e) => {
     e.preventDefault();
     if (newMessage.trim() === '') return;
-    onSend({ type: 'text', content: newMessage });
+    onSend(newMessage);
     setNewMessage('');
     setShowEmojiPicker(false);
     setShowAttachmentMenu(false);
@@ -40,7 +48,6 @@ function ChatBox({ messages, onSend }) {
           body: formData,
         });
         const result = await res.json();
-
         onSend({ type: fileType, content: result.fileUrl, name: file.name });
       } catch (err) {
         console.error('File upload failed:', err);
@@ -63,19 +70,27 @@ function ChatBox({ messages, onSend }) {
               key={index}
               className={`chat-message ${msg.sender === 'Me' ? 'sent' : 'received'}`}
             >
-              {msg.type === 'file' || msg.type === 'photo' || msg.type === 'document' ? (
+              {msg.type === 'photo' ? (
+                <img
+                  src={msg.content}
+                  alt={msg.name || 'Photo'}
+                  className="chat-photo"
+                  onClick={() => setModalImage(msg.content)} // ✅ open modal
+                />
+              ) : msg.type === 'document' || msg.type === 'file' ? (
                 <a href={msg.content} target="_blank" rel="noopener noreferrer">
                   📎 {msg.name || 'Attachment'}
                 </a>
               ) : (
-                <p>{msg.text || msg.content}</p>
+                <p>{msg.content}</p>
               )}
               <span className="timestamp">
-                {msg.sender} • {msg.time || new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {msg.sender} • {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
           ))
         )}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Input row */}
@@ -155,6 +170,15 @@ function ChatBox({ messages, onSend }) {
           </button>
         </div>
       </form>
+
+      {/* ✅ Modal for full-size photo */}
+      {modalImage && (
+        <div className="modal-overlay" onClick={() => setModalImage(null)}>
+          <div className="modal-content">
+            <img src={modalImage} alt="Full size" className="modal-photo" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

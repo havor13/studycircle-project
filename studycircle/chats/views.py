@@ -6,7 +6,7 @@ from .models import ChatThread, ChatMessage
 from .serializers import ChatThreadSerializer, ChatMessageSerializer
 
 class ThreadViewSet(viewsets.ModelViewSet):
-    queryset = ChatThread.objects.all()
+    queryset = ChatThread.objects.all().order_by('-created_at')
     serializer_class = ChatThreadSerializer
     permission_classes = [permissions.IsAuthenticated]
 

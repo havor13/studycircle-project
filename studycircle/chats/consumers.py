@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from jwt import decode as jwt_decode, InvalidTokenError
 from django.db import close_old_connections
+from chats.models import ChatMessage, Thread  # adjust import paths to your app
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -11,7 +12,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         Connect user to either the general room or a private thread room.
         Validate JWT token from query string (?token=...).
         """
-        # Extract token from query string
         query_string = self.scope["query_string"].decode()
         token = None
         if "token=" in query_string:
@@ -22,7 +22,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
 
         try:
-            # Decode JWT
             decoded = jwt_decode(token, settings.SECRET_KEY, algorithms=["HS256"])
             user_id = decoded.get("user_id")
 
@@ -30,7 +29,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 await self.close()
                 return
 
-            # Attach authenticated user to scope
             self.scope["user"] = await User.objects.aget(pk=user_id)
             close_old_connections()
 
@@ -55,22 +53,44 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         """
         Receive message from WebSocket and broadcast to group.
-        Expected payload: { "message": "...", "thread": <id or null> }
+        Expected payload: { "message": "...", "thread": <id>, "type": "...", "name": "..." }
         Sender is always taken from authenticated scope["user"].
         """
         data = json.loads(text_data)
         message = data.get("message")
-        thread = data.get("thread", self.thread_id)
+        thread_id = data.get("thread", self.thread_id)
+        msg_type = data.get("type", "text")
+        msg_name = data.get("name")
 
-        sender = self.scope["user"].username if self.scope["user"].is_authenticated else "Anonymous"
+        sender = self.scope["user"]
 
+        # ✅ Persist message in DB
+        thread = None
+        if thread_id:
+            try:
+                thread = await Thread.objects.aget(pk=thread_id)
+            except Thread.DoesNotExist:
+                thread = None
+
+        if thread:
+            await ChatMessage.objects.acreate(
+                thread=thread,
+                sender=sender,
+                content=message,
+                type=msg_type,
+                name=msg_name
+            )
+
+        # ✅ Broadcast to group
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 "type": "chat_message",
                 "message": message,
-                "sender": sender,
-                "thread": thread,
+                "sender": sender.username,
+                "thread": thread_id,
+                "msg_type": msg_type,
+                "msg_name": msg_name,
             }
         )
 
@@ -80,4 +100,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             "message": event["message"],
             "sender": event["sender"],
             "thread": event["thread"],
+            "type": event.get("msg_type", "text"),
+            "name": event.get("msg_name"),
         }))

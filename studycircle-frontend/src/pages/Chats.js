@@ -62,7 +62,7 @@ function Chats() {
   useEffect(() => {
     if (!activeThread) return;
 
-    const token = localStorage.getItem('token'); // ✅ use correct key
+    const token = localStorage.getItem('token');
     const baseUrl =
       process.env.NODE_ENV === 'development'
         ? 'ws://localhost:8000/ws/chats'
@@ -80,16 +80,14 @@ function Chats() {
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        if (data.thread === activeThread.id || activeThread.chat_type === 'general') {
-          setMessages(prev => [
-            ...prev,
-            {
-              sender: data.sender,
-              content: data.message,
-              created_at: new Date().toISOString()
-            }
-          ]);
-        }
+        setMessages(prev => [
+          ...prev,
+          {
+            sender: data.sender,
+            content: data.message,
+            created_at: new Date().toISOString()
+          }
+        ]);
       } catch (err) {
         console.error('Error parsing WebSocket message:', err);
       }
@@ -103,24 +101,28 @@ function Chats() {
     };
   }, [activeThread]);
 
-  // Send message
-  const handleSend = async (msg) => {
+  // Send message (text or attachment)
+  const handleSend = (msg) => {
     if (!socket || !activeThread) return;
 
-    const userId = localStorage.getItem('userId'); // replace with actual auth context
-    const msgPayload = { message: msg, thread: activeThread.id };
+    let payload;
+    if (typeof msg === 'string') {
+      // Text message
+      payload = { message: msg, thread: activeThread.id };
+    } else {
+      // Attachment or structured message
+      payload = {
+        message: msg.content,
+        thread: activeThread.id,
+        type: msg.type,
+        name: msg.name
+      };
+    }
 
     try {
-      // ✅ Only send message + thread; backend uses JWT to identify sender
-      socket.send(JSON.stringify(msgPayload));
-
-      await api.post('messages/', {
-        thread: activeThread.id,
-        sender: userId,
-        content: msg
-      });
+      socket.send(JSON.stringify(payload));
     } catch (err) {
-      console.error('Failed to send/save message:', err);
+      console.error('Failed to send message:', err);
     }
   };
 

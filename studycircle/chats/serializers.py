@@ -3,18 +3,14 @@ from .models import ChatThread, ChatMessage
 
 class ChatThreadSerializer(serializers.ModelSerializer):
     # Show usernames instead of just IDs
-    user1_username = serializers.CharField(source='user1.username', read_only=True)
-    user2_username = serializers.CharField(source='user2.username', read_only=True)
+    participants = serializers.StringRelatedField(many=True)  # show usernames
 
     class Meta:
         model = ChatThread
         fields = [
             'id',
-            'chat_type',       # e.g. "general" or "private"
-            'user1',           # FK to User
-            'user2',           # FK to User
-            'user1_username',  # convenience field
-            'user2_username',  # convenience field
+            'chat_type',     # "general" or "private"
+            'participants',  # list of usernames
             'created_at',
         ]
 
@@ -30,5 +26,8 @@ class ChatMessageSerializer(serializers.ModelSerializer):
             'sender',          # FK to User
             'sender_username', # convenience field
             'content',
+            'type',            # ✅ new field
+            'name',            # ✅ new field
             'created_at',
+            'is_read',
         ]
