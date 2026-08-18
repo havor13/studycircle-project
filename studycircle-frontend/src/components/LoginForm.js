@@ -16,17 +16,18 @@ function LoginForm({ setToken }) {
     setError('');
 
     try {
-      // ✅ Call backend login endpoint
-      const res = await api.post('auth/login/', { username, password });
+      // ✅ Call backend with credentials enabled
+      const res = await api.post(
+        'auth/login/',
+        { username, password },
+        { withCredentials: true } // required for CORS + cookies
+      );
 
       const accessToken = res.data.access;
       const refreshToken = res.data.refresh;
 
-      if (!accessToken || !refreshToken) {
-        throw new Error('No tokens returned from server');
-      }
-
       // ✅ Save tokens + username
+      setToken(accessToken);
       localStorage.setItem('token', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('username', username);
@@ -34,10 +35,9 @@ function LoginForm({ setToken }) {
       // ✅ Attach token to axios instance
       api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
-      // ✅ Update parent state
-      setToken(accessToken);
-
       alert('✅ Login successful!');
+
+      // ✅ Redirect to homepage
       navigate('/');
     } catch (err) {
       console.error('Login error:', err);
@@ -47,27 +47,6 @@ function LoginForm({ setToken }) {
       );
     } finally {
       setLoading(false);
-    }
-  };
-
-  // ✅ Helper to refresh token manually if needed
-  const handleRefresh = async () => {
-    try {
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (!refreshToken) throw new Error('No refresh token found');
-
-      const res = await api.post('auth/refresh/', { refresh: refreshToken });
-      const newAccessToken = res.data.access;
-
-      localStorage.setItem('token', newAccessToken);
-      api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
-      setToken(newAccessToken);
-
-      alert('🔄 Token refreshed!');
-    } catch (err) {
-      console.error('Refresh error:', err);
-      setError('Session expired. Please log in again.');
-      navigate('/login');
     }
   };
 
@@ -95,11 +74,6 @@ function LoginForm({ setToken }) {
       </form>
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      {/* ✅ Optional manual refresh button for testing */}
-      <button onClick={handleRefresh} style={{ marginTop: '10px' }}>
-        Refresh Token
-      </button>
     </div>
   );
 }
