@@ -16,28 +16,23 @@ function LoginForm({ setToken }) {
     setError('');
 
     try {
-      // ✅ Call backend login endpoint
-      const res = await api.post(
-        'auth/login/',
-        { username, password },
-        { withCredentials: true } // required for CORS + cookies
-      );
+      const res = await api.post('auth/login/', { username, password });
 
       const accessToken = res.data.access;
       const refreshToken = res.data.refresh;
+      const userId = res.data.user_id; // ✅ make sure backend returns this
 
-      // ✅ Save tokens + username
+      // Save tokens + user info
       setToken(accessToken);
       localStorage.setItem('access', accessToken);
       localStorage.setItem('refresh', refreshToken);
       localStorage.setItem('username', username);
+      localStorage.setItem('userId', userId);
 
-      // ✅ Attach token to axios instance
+      // Attach token to axios
       api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
       alert('✅ Login successful!');
-
-      // ✅ Redirect to homepage
       navigate('/');
     } catch (err) {
       console.error('Login error:', err);
