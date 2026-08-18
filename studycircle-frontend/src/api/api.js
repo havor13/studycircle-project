@@ -12,10 +12,10 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Attach token from localStorage if available
+// ✅ Attach token from localStorage if available
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -24,7 +24,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Handle expired tokens automatically
+// ✅ Handle expired tokens automatically
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -34,23 +34,31 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken');
+        const refreshToken = localStorage.getItem('refresh');
         if (!refreshToken) throw new Error('No refresh token');
 
-        const res = await axios.post(
-          `${apiBaseUrl}/auth/refresh/`,
-          { refresh: refreshToken }
-        );
+        // Request new access token
+        const res = await axios.post(`${apiBaseUrl}/auth/refresh/`, {
+          refresh: refreshToken,
+        });
 
         const newAccessToken = res.data.access;
-        localStorage.setItem('token', newAccessToken);
+        localStorage.setItem('access', newAccessToken);
 
+        // Update headers
         api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
 
+        // Retry original request
         return api(originalRequest);
       } catch (refreshError) {
         console.error('Token refresh failed:', refreshError);
+
+        // ✅ Clear tokens and redirect to login
+        localStorage.removeItem('access');
+        localStorage.removeItem('refresh');
+        localStorage.removeItem('username');
+        window.location.href = '/login';
       }
     }
 

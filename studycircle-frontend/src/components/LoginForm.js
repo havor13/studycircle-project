@@ -16,7 +16,7 @@ function LoginForm({ setToken }) {
     setError('');
 
     try {
-      // ✅ Call backend with credentials enabled
+      // ✅ Call backend login endpoint
       const res = await api.post(
         'auth/login/',
         { username, password },
@@ -28,8 +28,8 @@ function LoginForm({ setToken }) {
 
       // ✅ Save tokens + username
       setToken(accessToken);
-      localStorage.setItem('token', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('access', accessToken);
+      localStorage.setItem('refresh', refreshToken);
       localStorage.setItem('username', username);
 
       // ✅ Attach token to axios instance
