@@ -62,11 +62,16 @@ function Chats() {
   useEffect(() => {
     if (!activeThread) return;
 
-    const token = localStorage.getItem('accessToken'); // JWT from storage/context
+    const token = localStorage.getItem('token'); // ✅ use correct key
+    const baseUrl =
+      process.env.NODE_ENV === 'development'
+        ? 'ws://localhost:8000/ws/chats'
+        : 'wss://studycircle-project.onrender.com/ws/chats';
+
     const wsUrl =
       activeThread.chat_type === 'general'
-        ? `ws://localhost:8000/ws/chats/?token=${token}`
-        : `ws://localhost:8000/ws/chats/${activeThread.id}/?token=${token}`;
+        ? `${baseUrl}/?token=${token}`
+        : `${baseUrl}/${activeThread.id}/?token=${token}`;
 
     const ws = new WebSocket(wsUrl);
     setSocket(ws);
@@ -78,7 +83,11 @@ function Chats() {
         if (data.thread === activeThread.id || activeThread.chat_type === 'general') {
           setMessages(prev => [
             ...prev,
-            { sender: data.sender, content: data.message, created_at: new Date().toISOString() }
+            {
+              sender: data.sender,
+              content: data.message,
+              created_at: new Date().toISOString()
+            }
           ]);
         }
       } catch (err) {
@@ -99,10 +108,12 @@ function Chats() {
     if (!socket || !activeThread) return;
 
     const userId = localStorage.getItem('userId'); // replace with actual auth context
-    const msgPayload = { sender: userId, message: msg, thread: activeThread.id };
+    const msgPayload = { message: msg, thread: activeThread.id };
 
     try {
+      // ✅ Only send message + thread; backend uses JWT to identify sender
       socket.send(JSON.stringify(msgPayload));
+
       await api.post('messages/', {
         thread: activeThread.id,
         sender: userId,
