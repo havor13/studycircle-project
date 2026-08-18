@@ -1,11 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import api from '../api/api';   // ✅ use axios client
 import '../styles.css';
-
-// ✅ Base API URL: local vs production
-const API_BASE =
-  process.env.NODE_ENV === 'development'
-    ? 'http://localhost:8000/api'
-    : 'https://studycircle-project.onrender.com/api';
 
 function ChatBox({ threadId, userId }) {
   const [messages, setMessages] = useState([]);
@@ -15,9 +10,8 @@ function ChatBox({ threadId, userId }) {
   // Load messages for thread
   useEffect(() => {
     if (!threadId) return;
-    fetch(`${API_BASE}/messages/?thread=${threadId}`)
-      .then(res => res.json())
-      .then(data => setMessages(data))
+    api.get('messages/', { params: { thread: threadId } })
+      .then(res => setMessages(res.data))
       .catch(err => console.error('Failed to fetch messages:', err));
   }, [threadId]);
 
@@ -34,17 +28,12 @@ function ChatBox({ threadId, userId }) {
     if (!newMessage.trim()) return;
 
     try {
-      const res = await fetch(`${API_BASE}/messages/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          thread: threadId,
-          sender: userId,
-          content: newMessage
-        })
+      const res = await api.post('messages/', {
+        thread: threadId,
+        sender: userId,
+        content: newMessage
       });
-      const msg = await res.json();
-      setMessages(prev => [...prev, msg]);
+      setMessages(prev => [...prev, res.data]);
       setNewMessage('');
     } catch (err) {
       console.error('Failed to send message:', err);
