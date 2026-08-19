@@ -28,7 +28,7 @@ function Chats() {
           setActiveThread(res.data[0]);
         }
       } catch (err) {
-        console.error('Failed to fetch threads:', err);
+        console.error('Failed to fetch threads:', err.response?.data || err.message);
       }
     };
     fetchThreads();
@@ -41,7 +41,7 @@ function Chats() {
         const res = await api.get('users/');
         setUsers(res.data);
       } catch (err) {
-        console.error('Failed to fetch users:', err);
+        console.error('Failed to fetch users:', err.response?.data || err.message);
       }
     };
     fetchUsers();
@@ -57,7 +57,7 @@ function Chats() {
           });
           setMessages(res.data);
         } catch (err) {
-          console.error('Failed to fetch messages:', err);
+          console.error('Failed to fetch messages:', err.response?.data || err.message);
         }
       };
       fetchMessages();
@@ -117,7 +117,8 @@ function Chats() {
       const res = await api.post('messages/', payload);
       setMessages(prev => [...prev, res.data]);
     } catch (err) {
-      console.error('Failed to send/save message:', err.response?.data || err);
+      // ✅ Show exact error from DRF serializer
+      console.error('Failed to send/save message:', err.response?.data || err.message);
     }
   };
 
@@ -134,7 +135,7 @@ function Chats() {
       setActiveThread(res.data);
       setSelectedUser('');
     } catch (err) {
-      console.error('Failed to start private chat:', err);
+      console.error('Failed to start private chat:', err.response?.data || err.message);
     }
   };
 
