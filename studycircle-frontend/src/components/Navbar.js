@@ -36,6 +36,8 @@ function Navbar({ token, setToken }) {
           <li><Link to="/groups">Groups</Link></li>
           <li><Link to="/posts">Posts</Link></li>
           <li><Link to="/chats">Chats</Link></li>
+          <li><Link to="/planner">Planner</Link></li>
+          {token ? <li><Link to="/profile">Profile</Link></li> : null} {/* ✅ Fixed syntax */}
         </ul>
       </div>
 

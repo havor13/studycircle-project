@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import api from '../api/api';
+import { threadSearchApi } from '../api/api'; // ✅ use helper
 import '../styles.css';
 import ChatBox from '../components/ChatBox';
 import Sidebar from '../components/Sidebar';
+import api from '../api/api';
 
 // ✅ Base WebSocket URL: local vs production
 const WS_BASE =
@@ -18,7 +19,13 @@ function Chats() {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState('');
 
-  // Load threads
+  // 🔎 Local search state
+  const [threadSearchQuery, setThreadSearchQuery] = useState('');
+  const [threadSearchResults, setThreadSearchResults] = useState([]);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [searchError, setSearchError] = useState('');
+
+  // Load threads (run once on mount)
   useEffect(() => {
     const fetchThreads = async () => {
       try {
@@ -32,9 +39,10 @@ function Chats() {
       }
     };
     fetchThreads();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Load users
+  // Load users (run once on mount)
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -45,6 +53,7 @@ function Chats() {
       }
     };
     fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Load messages for active thread
@@ -62,6 +71,7 @@ function Chats() {
       };
       fetchMessages();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeThread]);
 
   // WebSocket connection
@@ -73,7 +83,7 @@ function Chats() {
     const ws = new WebSocket(wsUrl);
     setSocket(ws);
 
-    ws.onopen = () => console.log('Connected to WebSocket');
+    ws.onopen = () => console.log('✅ Connected to WebSocket');
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
@@ -86,38 +96,48 @@ function Chats() {
             content: data.content,
             thread: data.thread,
             created_at: data.created_at,
+            attachment_url: data.attachment_url || null,
           }
         ]);
       } catch (err) {
         console.error('Error parsing WebSocket message:', err);
       }
     };
-    ws.onerror = (err) => console.error('WebSocket error:', err);
-    ws.onclose = () => console.log('WebSocket disconnected');
+    ws.onerror = (err) => console.error('❌ WebSocket error:', err);
+    ws.onclose = () => console.log('⚠️ WebSocket disconnected');
 
     return () => {
       ws.close();
       setSocket(null);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeThread]);
 
-  // Send message
+  // Send message (text or file)
   const handleSend = async (msg) => {
     if (!socket || !activeThread) return;
 
-    const payload = {
-      thread: activeThread.id,
-      content: typeof msg === 'string' ? msg : msg.content,
-    };
-
     try {
-      // ✅ WebSocket broadcast
-      socket.send(JSON.stringify(payload));
-      // ✅ REST API save
-      const res = await api.post('messages/', payload);
+      let res;
+      if (msg.file) {
+        const formData = new FormData();
+        formData.append('thread', activeThread.id);
+        formData.append('file', msg.file);
+
+        res = await api.post('messages/upload/', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      } else {
+        const payload = {
+          thread: activeThread.id,
+          content: typeof msg === 'string' ? msg : msg.content,
+        };
+        socket.send(JSON.stringify(payload));
+        res = await api.post('messages/', payload);
+      }
+
       setMessages(prev => [...prev, res.data]);
     } catch (err) {
-      // ✅ Show exact error from DRF serializer
       console.error('Failed to send/save message:', err.response?.data || err.message);
     }
   };
@@ -139,6 +159,33 @@ function Chats() {
     }
   };
 
+  // 🔎 Debounced local thread search
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (threadSearchQuery.trim() && activeThread) {
+        handleThreadSearch(threadSearchQuery);
+      } else {
+        setThreadSearchResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [threadSearchQuery, activeThread]);
+
+  const handleThreadSearch = async (q) => {
+    setLoadingSearch(true);
+    setSearchError('');
+    try {
+      const res = await threadSearchApi(activeThread.id, q);
+      setThreadSearchResults(res.messages || []);
+    } catch (err) {
+      setSearchError('Search failed. Please try again.');
+    } finally {
+      setLoadingSearch(false);
+    }
+  };
+
   return (
     <div className="chats-layout">
       <Sidebar
@@ -151,6 +198,28 @@ function Chats() {
         handleStartPrivateChat={handleStartPrivateChat}
       />
       <div className="chat-main">
+        {/* 🔎 Local Thread Search Bar */}
+        <div className="thread-search">
+          <input
+            type="text"
+            placeholder="Search messages in this thread..."
+            value={threadSearchQuery}
+            onChange={(e) => setThreadSearchQuery(e.target.value)}
+          />
+        </div>
+
+        {loadingSearch && <p className="search-status">⏳ Searching...</p>}
+        {searchError && <p className="search-error">{searchError}</p>}
+
+        {threadSearchResults.length > 0 && (
+          <div className="search-results">
+            <h4>Messages Found</h4>
+            {threadSearchResults.map(m => (
+              <p key={m.id}>📝 {m.sender_username}: {m.content}</p>
+            ))}
+          </div>
+        )}
+
         <ChatBox
           threadId={activeThread?.id}
           onSend={handleSend}

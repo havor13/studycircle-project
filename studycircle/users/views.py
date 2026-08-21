@@ -1,21 +1,44 @@
 from rest_framework import viewsets, generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from .models import Profile
 from .serializers import UserSerializer, ProfileSerializer
 
+
 class UserViewSet(viewsets.ModelViewSet):
+    """
+    Handles CRUD operations for Users.
+    """
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
 
 class ProfileViewSet(viewsets.ModelViewSet):
-    queryset = Profile.objects.all()
+    """
+    Handles CRUD operations for User Profiles.
+    """
+    queryset = Profile.objects.all()   # ✅ Added back so DRF router can infer basename
     serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Only return the logged-in user's profile
+        return Profile.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        # Ensure profile is linked to the logged-in user
+        serializer.save(user=self.request.user)
+
 
 # ✅ Signup endpoint
 class SignupView(generics.CreateAPIView):
+    """
+    Custom signup endpoint that creates a User and Profile,
+    then returns both along with JWT tokens.
+    """
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]

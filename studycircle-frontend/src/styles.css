@@ -137,6 +137,12 @@ body {
   font-weight: bold;
 }
 
+.home-search {
+  margin: 30px auto 20px;
+  max-width: 600px;
+  text-align: center;
+}
+
 .home-button.signup {
   background-color: #2ecc71;
   color: white;
@@ -491,14 +497,14 @@ button:hover {
 
 /* Sent messages */
 .chat-message.sent {
-  background: #0d4877;   /* blue background */
+  background: #be9999;   /* white background */
   color: #181616;           /* white text */
   margin-left: auto;
 }
 
 /* Received messages */
 .chat-message.received {
-  background: #201c1c;      /* white background */
+  background: #524f4f;      /* white background */
   color: #000;           /* black text */
   margin-right: auto;
   border: 1px solid #ddd;
@@ -511,10 +517,10 @@ button:hover {
   opacity: 0.7;
 }
 
-/* Photo messages */
+/* Smaller photo messages */
 .chat-photo {
-  max-width: 100%;
-  max-height: 250px;
+  max-width: 50%;   /* reduce width */
+  max-height: 150px; /* reduce height */
   border-radius: 8px;
   object-fit: cover;
   margin: 4px 0;
@@ -534,7 +540,7 @@ button:hover {
 }
 
 .chat-empty img {
-  width: 120px;
+  width: 40px;
   opacity: 0.6;
 }
 
@@ -542,8 +548,8 @@ button:hover {
 .chat-input {
   display: flex;
   padding: 16px;
-  border-top: 1px solid #ddd;
-  background: #f0f2f5;
+  border-top: 1px solid #b68585;
+  background: #b7c9dd;
 }
 
 .chat-input-row {
@@ -743,11 +749,11 @@ button:hover {
 }
 
 .group-card, .event-card {
-  border: 1px solid #ddd;
+  border: 1px solid #fff;
   border-radius: 8px;
   padding: 12px;
   margin: 10px 0;
-  background: #fafafa;
+  background: rgb(11, 21, 27);
 }
 
 .group-actions, .event-actions {
@@ -789,3 +795,172 @@ button:hover {
   background-color: #dc3545;
   color: white;
 }
+
+/* Attachments dropdown */
+.attachments-menu {
+  position: absolute;
+  bottom: 70px;          /* sits above input row */
+  left: 50px;            /* adjust near 📎 button */
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  z-index: 1000;
+}
+
+.attachments-menu button {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.attachments-menu button:hover {
+  background: #f0f2f5;
+  color: #40739e;
+}
+
+/* 🔎 Search Bar */
+.search-bar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px auto;
+  max-width: 600px;
+}
+
+.search-bar input {
+  flex: 1;
+  max-width: 400px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.search-bar button {
+  padding: 10px 14px;
+  background-color: #4a90e2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.search-bar button:hover {
+  background-color: #357ab8;
+}
+
+/* 📋 Search Results */
+.search-results {
+  margin-top: 15px;
+  padding: 12px;
+  background: #b998d4;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.search-results h4 {
+  margin: 10px 0 5px;
+  font-size: 15px;
+  font-weight: bold;
+  color: #333;
+}
+
+.search-results p {
+  margin: 4px 0;
+  font-size: 14px;
+  padding: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.search-results p:hover {
+  background-color: #eef3f8;
+}
+
+/* ⭐ Recommendations */
+.recommendations {
+  margin-top: 20px;
+  padding: 12px;
+  background: #fff8e1;
+  border: 1px solid #f0d98c;
+  border-radius: 6px;
+}
+
+.recommendations h4 {
+  margin: 10px 0 5px;
+  font-size: 15px;
+  font-weight: bold;
+  color: #8a6d3b;
+}
+
+.recommendations p {
+  margin: 4px 0;
+  font-size: 14px;
+  padding: 6px;
+  border-radius: 4px;
+}
+
+.recommendations p:hover {
+  background-color: #fff3c4;
+}
+
+/* 🔎 Search Bar - Mobile Friendly */
+@media (max-width: 600px) {
+  .search-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .search-bar input,
+  .search-bar button {
+    width: 100%;
+    font-size: 15px;
+    padding: 12px;
+  }
+}
+
+/* 📋 Search Results - Mobile Friendly */
+@media (max-width: 600px) {
+  .search-results {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .search-results h4 {
+    font-size: 14px;
+    margin-top: 8px;
+  }
+
+  .search-results p {
+    font-size: 13px;
+    padding: 8px;
+  }
+}
+
+/* ⭐ Recommendations - Mobile Friendly */
+@media (max-width: 600px) {
+  .recommendations {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .recommendations h4 {
+    font-size: 14px;
+    margin-top: 8px;
+  }
+
+  .recommendations p {
+    font-size: 13px;
+    padding: 8px;
+  }
+}
+

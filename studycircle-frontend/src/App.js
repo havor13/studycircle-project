@@ -8,6 +8,8 @@ import Groups from './pages/Groups';
 import GroupEvents from './pages/GroupEvents'; // ✅ Events page
 import Posts from './pages/Posts';
 import Chats from './pages/Chats';
+import UserProfile from './pages/UserProfile'; // ✅ New profile page
+import PlannerPage from './pages/PlannerPage'; // ✅ StudyPlanner page
 import './styles.css'; // ✅ Global stylesheet import
 
 function App() {
@@ -65,8 +67,34 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <UserProfile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/planner"
+            element={
+              <ProtectedRoute>
+                <PlannerPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </main>
+
+      {/* ✅ Inline footer */}
+      <footer style={{
+        backgroundColor: '#111416',
+        textAlign: 'center',
+        padding: '1rem',
+        borderTop: '1px solid #ddd'
+      }}>
+        © {new Date().getFullYear()} StudyCircle. All rights reserved.Sampson Havor
+      </footer>
     </Router>
   );
 }

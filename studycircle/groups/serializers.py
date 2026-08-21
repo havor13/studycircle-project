@@ -59,9 +59,10 @@ class ResourceSerializer(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     """
     Serializer for Event model.
-    Includes creator details.
+    Includes creator details and makes group read-only.
     """
     created_by = UserSerializer(read_only=True)
+    group = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Event

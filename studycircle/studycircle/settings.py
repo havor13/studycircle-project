@@ -1,7 +1,12 @@
+import os
 from pathlib import Path
 from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-ayq7#ai9&_@=nc^bp_7x2hj_!_kcxl=y96-lqa(3*+0-4m(c-p'
@@ -35,6 +40,8 @@ INSTALLED_APPS = [
     'groups',
     'posts',
     'chats',
+    'search',  # ✅ Search app
+    'studyplanner',  # ✅ Study planner app
 ]
 
 MIDDLEWARE = [

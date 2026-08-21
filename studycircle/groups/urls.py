@@ -3,14 +3,14 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
 from .views import StudyGroupViewSet, GroupMemberViewSet, ResourceViewSet, EventViewSet
 
-# Main router
+# Main router for top-level resources
 router = DefaultRouter()
 router.register(r'groups', StudyGroupViewSet, basename='group')
-router.register(r'group-members', GroupMemberViewSet, basename='group-member')
-router.register(r'resources', ResourceViewSet, basename='resource')
 
-# Nested router for events under groups
+# Nested router for group-related resources
 groups_router = routers.NestedSimpleRouter(router, r'groups', lookup='group')
+groups_router.register(r'members', GroupMemberViewSet, basename='group-members')
+groups_router.register(r'resources', ResourceViewSet, basename='group-resources')
 groups_router.register(r'events', EventViewSet, basename='group-events')
 
 urlpatterns = [

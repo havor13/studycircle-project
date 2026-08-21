@@ -2,11 +2,27 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import ThreadViewSet, MessageViewSet, MessageReadViewSet
 
+# ✅ Register viewsets with DRF router
 router = DefaultRouter()
-router.register(r'threads', ThreadViewSet, basename='thread')
-router.register(r'messages', MessageViewSet, basename='message')
-router.register(r'message_reads', MessageReadViewSet, basename='message_read')
+router.register(r"threads", ThreadViewSet, basename="thread")
+router.register(r"messages", MessageViewSet, basename="message")
+router.register(r"message_reads", MessageReadViewSet, basename="message_read")
 
 urlpatterns = [
-    path('', include(router.urls)),
+    # 🔹 All standard CRUD endpoints from the router
+    path("", include(router.urls)),
+
+    # 🔹 Explicit route for file uploads (maps to MessageViewSet.upload action)
+    path(
+        "messages/upload/",
+        MessageViewSet.as_view({"post": "upload"}),
+        name="message-upload"
+    ),
+
+    # 🔹 Explicit route for message reactions (maps to MessageViewSet.react action)
+    path(
+        "messages/<int:pk>/react/",
+        MessageViewSet.as_view({"post": "react"}),
+        name="message-react"
+    ),
 ]

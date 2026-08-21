@@ -1,0 +1,26 @@
+.planner-page {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.planner-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.planner-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* two equal columns */
+  gap: 20px;
+}
+
+.planner-column {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.planner-column h2 {
+  margin-top: 0;
+}

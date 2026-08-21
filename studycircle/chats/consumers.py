@@ -5,7 +5,8 @@ from django.contrib.auth.models import User
 from jwt import decode as jwt_decode, InvalidTokenError
 from django.db import close_old_connections
 from django.utils import timezone
-from chats.models import ChatMessage, ChatThread  # adjust import paths
+from chats.models import ChatMessage, ChatThread, ChatMessageReaction
+from chats.serializers import ChatMessageReactionSerializer  # ✅ import serializer
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -47,12 +48,38 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
+        sender = self.scope["user"]
+
+        # 🔹 Handle reactions
+        if data.get("type") == "reaction":
+            message_id = data.get("message_id")
+            emoji = data.get("emoji")
+
+            try:
+                message = await ChatMessage.objects.aget(pk=message_id)
+            except ChatMessage.DoesNotExist:
+                return
+
+            reaction, created = await ChatMessageReaction.objects.aget_or_create(
+                message=message,
+                user=sender,
+                emoji=emoji
+            )
+
+            serializer = ChatMessageReactionSerializer(reaction)
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "chat_reaction",
+                    "reaction": serializer.data
+                }
+            )
+            return
+
+        # 🔹 Handle normal messages
         content = data.get("message")
         thread_id = data.get("thread", self.thread_id)
 
-        sender = self.scope["user"]
-
-        # ✅ Persist message in DB
         thread = None
         if thread_id:
             try:
@@ -68,7 +95,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 content=content
             )
 
-        # ✅ Broadcast with consistent keys
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -83,7 +109,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
     async def chat_message(self, event):
-        # ✅ Send JSON payload matching frontend expectations
         await self.send(text_data=json.dumps({
             "id": event.get("id"),
             "sender": event.get("sender"),
@@ -91,4 +116,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             "content": event.get("content"),
             "thread": event.get("thread"),
             "created_at": event.get("created_at"),
+        }))
+
+    async def chat_reaction(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "reaction",
+            "reaction": event.get("reaction")
         }))

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../styles.css';
+import GlobalSearch from '../components/GlobalSearch'; // ✅ import the search component
 
 function Home() {
   return (
@@ -12,15 +13,24 @@ function Home() {
         </p>
       </header>
 
-      <section className="home-actions">
-        <Link to="/signup" className="home-button signup">
-          Get Started
-        </Link>
-        <Link to="/login" className="home-button login">
-          Already have an account? Login
-        </Link>
+      {/* 🔎 Global Search */}
+      <section className="home-search">
+        <GlobalSearch />
       </section>
 
+      {/* ✨ Action Buttons */}
+      <section className="home-actions">
+        <div className="action-buttons">
+          <Link to="/signup" className="home-button signup">
+            Get Started
+          </Link>
+          <Link to="/login" className="home-button login">
+            Already have an account? Login
+          </Link>
+        </div>
+      </section>
+
+      {/* 🌟 Features */}
       <section className="home-features">
         <h2>✨ Features</h2>
         <ul>

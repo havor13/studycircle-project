@@ -7,6 +7,16 @@ const apiBaseUrl =
     ? 'http://127.0.0.1:8000/api'
     : 'https://studycircle-project.onrender.com/api');
 
+// ✅ Helper functions for tokens
+const getAccessToken = () => localStorage.getItem('access');
+const getRefreshToken = () => localStorage.getItem('refresh');
+const saveAccessToken = (token) => localStorage.setItem('access', token);
+const clearTokens = () => {
+  localStorage.removeItem('access');
+  localStorage.removeItem('refresh');
+  localStorage.removeItem('username');
+};
+
 // ✅ Create axios instance
 const api = axios.create({
   baseURL: apiBaseUrl,
@@ -16,7 +26,7 @@ const api = axios.create({
 // ✅ Attach access token from localStorage if available
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access');
+    const token = getAccessToken();
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -35,7 +45,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem('refresh');
+        const refreshToken = getRefreshToken();
         if (!refreshToken) throw new Error('No refresh token');
 
         // Request new access token
@@ -44,7 +54,7 @@ api.interceptors.response.use(
         });
 
         const newAccessToken = res.data.access;
-        localStorage.setItem('access', newAccessToken);
+        saveAccessToken(newAccessToken);
 
         // Update headers
         api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
@@ -54,11 +64,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         console.error('Token refresh failed:', refreshError);
-
-        // ✅ Clear tokens and redirect to login
-        localStorage.removeItem('access');
-        localStorage.removeItem('refresh');
-        localStorage.removeItem('username');
+        clearTokens();
         window.location.href = '/login';
       }
     }
@@ -66,5 +72,38 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// ✅ Global Search helper function
+export const searchApi = async (query) => {
+  try {
+    const res = await api.get('search/', { params: { q: query } });
+    return res.data;
+  } catch (err) {
+    console.error('Search API failed:', err.response?.data || err.message);
+    throw err;
+  }
+};
+
+// ✅ Recommendations helper function
+export const recommendationsApi = async () => {
+  try {
+    const res = await api.get('recommendations/');
+    return res.data;
+  } catch (err) {
+    console.error('Recommendations API failed:', err.response?.data || err.message);
+    throw err;
+  }
+};
+
+// ✅ Local (thread-specific) search helper function
+export const threadSearchApi = async (threadId, query) => {
+  try {
+    const res = await api.get(`threads/${threadId}/search/`, { params: { q: query } });
+    return res.data;
+  } catch (err) {
+    console.error('Thread search API failed:', err.response?.data || err.message);
+    throw err;
+  }
+};
 
 export default api;

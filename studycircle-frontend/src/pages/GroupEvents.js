@@ -22,11 +22,11 @@ function GroupEvents() {
     const fetchEvents = async () => {
       try {
         const res = await api.get(`groups/${groupId}/events/`);
-        console.log("Events response:", res.data); // Debugging
+        console.log("✅ Events response:", res.data);
         setEvents(res.data);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching events:', err);
+        console.error('❌ Error fetching events:', err.response?.data || err.message);
         setError('Failed to load events.');
         setLoading(false);
       }
@@ -37,12 +37,19 @@ function GroupEvents() {
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post(`groups/${groupId}/events/`, newEvent);
+      // Debugging: log payload before sending
+      console.log("📤 Event payload being sent:", newEvent);
+
+      const res = await api.post(`groups/${groupId}/events/`, newEvent, {
+        headers: { "Content-Type": "application/json" }
+      });
+
+      console.log("✅ Event created:", res.data);
       setEvents([...events, res.data]);
       setNewEvent({ title: '', description: '', start_at: '', end_at: '', location: '' });
       alert('✅ Event created successfully!');
     } catch (err) {
-      console.error('Error creating event:', err);
+      console.error('❌ Error creating event:', err.response?.data || err.message);
       alert('❌ Failed to create event.');
     }
   };
@@ -52,8 +59,9 @@ function GroupEvents() {
     try {
       await api.delete(`groups/${groupId}/events/${eventId}/`);
       setEvents(events.filter(e => e.id !== eventId));
+      console.log(`🗑️ Deleted event ${eventId}`);
     } catch (err) {
-      console.error('Error deleting event:', err);
+      console.error('❌ Error deleting event:', err.response?.data || err.message);
       alert('❌ Failed to delete event.');
     }
   };
@@ -61,12 +69,18 @@ function GroupEvents() {
   const handleUpdateEvent = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.put(`groups/${groupId}/events/${editingEvent.id}/`, editingEvent);
+      console.log("📤 Update payload being sent:", editingEvent);
+
+      const res = await api.put(`groups/${groupId}/events/${editingEvent.id}/`, editingEvent, {
+        headers: { "Content-Type": "application/json" }
+      });
+
+      console.log("✅ Event updated:", res.data);
       setEvents(events.map(ev => ev.id === editingEvent.id ? res.data : ev));
       setEditingEvent(null);
       alert('✅ Event updated successfully!');
     } catch (err) {
-      console.error('Error updating event:', err);
+      console.error('❌ Error updating event:', err.response?.data || err.message);
       alert('❌ Failed to update event.');
     }
   };
@@ -76,7 +90,6 @@ function GroupEvents() {
       <h2>📅 Group Events</h2>
       <p>You are viewing events for group ID: <strong>{groupId}</strong></p>
 
-      {/* Back button */}
       <button className="back-btn" onClick={() => navigate('/groups')}>
         ← Back to Groups
       </button>
