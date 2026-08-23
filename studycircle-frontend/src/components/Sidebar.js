@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../styles.css';
+import '../chats.css';
 
 function Sidebar({
   threads,
@@ -12,33 +12,46 @@ function Sidebar({
 }) {
   const [showThreads, setShowThreads] = useState(true);
 
-  const renderThreadButton = (thread, label) => (
-    <button
-      key={thread.id}
-      type="button"
-      className={activeThread?.id === thread.id ? 'active-tab' : ''}
-      onClick={() => setActiveThread(thread)}
-    >
-      <span>{label}</span>
-      {/* Show unread badge if unread_count exists */}
-      {thread.unread_count > 0 && (
-        <span className="unread-badge">{thread.unread_count}</span>
-      )}
-    </button>
-  );
+  const renderThreadButton = (thread) => {
+    const label = thread.is_group
+      ? thread.name || `Group #${thread.id}`
+      : Array.isArray(thread.participants)
+        ? thread.participants.map(p => p.username).join(', ')
+        : `Thread #${thread.id}`;
+
+    return (
+      <button
+        key={thread.id}
+        type="button"
+        className={`thread-btn ${activeThread?.id === thread.id ? 'active-tab' : ''}`}
+        onClick={() => setActiveThread(thread)}
+      >
+        <span className="thread-label">{label}</span>
+        {thread.unread_count > 0 && (
+          <span className="unread-badge">{thread.unread_count}</span>
+        )}
+      </button>
+    );
+  };
 
   return (
     <div className="chat-sidebar">
       {/* Threads Section */}
-      <h3 onClick={() => setShowThreads(!showThreads)}>
+      <h3
+        className="sidebar-header"
+        onClick={() => setShowThreads(!showThreads)}
+      >
         {showThreads ? '▼' : '▶'} Threads
       </h3>
-      {showThreads && threads.map(thread => {
-        const participants = Array.isArray(thread.participants)
-          ? thread.participants.map(p => p.username).join(', ')
-          : `Thread #${thread.id}`;
-        return renderThreadButton(thread, participants || 'Discussion');
-      })}
+      {showThreads && (
+        <div className="thread-list">
+          {threads.length === 0 ? (
+            <p className="empty-threads">No threads yet</p>
+          ) : (
+            threads.map(renderThreadButton)
+          )}
+        </div>
+      )}
 
       {/* Start private chat */}
       <div className="start-private-chat">
@@ -46,14 +59,14 @@ function Sidebar({
           value={selectedUser}
           onChange={(e) => setSelectedUser(e.target.value)}
         >
-          <option value="">Select user...</option>
+          <option value="">➕ Start private chat...</option>
           {users.map(user => (
             <option key={user.id} value={user.id}>
               {user.username || user.name}
             </option>
           ))}
         </select>
-        <button onClick={handleStartPrivateChat}>Start Private Chat</button>
+        <button onClick={handleStartPrivateChat}>Start</button>
       </div>
     </div>
   );

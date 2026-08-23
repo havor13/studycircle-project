@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import '../styles.css';
+import '../chats.css';
 import Picker from '@emoji-mart/react';
 import data from '@emoji-mart/data';
 import api from '../api/api'; // ✅ import API helper

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { threadSearchApi } from '../api/api'; // ✅ use helper
-import '../styles.css';
+import '../chats.css';
 import ChatBox from '../components/ChatBox';
 import Sidebar from '../components/Sidebar';
 import api from '../api/api';

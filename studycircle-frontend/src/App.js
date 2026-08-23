@@ -88,7 +88,7 @@ function App() {
 
       {/* ✅ Inline footer */}
       <footer style={{
-        backgroundColor: '#111416',
+        backgroundColor: '#1a1c1d',
         textAlign: 'center',
         padding: '1rem',
         borderTop: '1px solid #ddd'

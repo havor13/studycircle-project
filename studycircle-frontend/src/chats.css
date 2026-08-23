@@ -1,0 +1,208 @@
+/* 🔹 Layout */
+.chats-layout {
+  display: flex;
+  height: 100vh;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #e3e3e7;
+}
+
+/* 🔹 Sidebar */
+.chat-sidebar {
+  width: 260px;
+  background: #2f3640;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+}
+
+/* 🔹 Main Chat */
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background: #4e5257;
+}
+
+/* 🔹 Chat bubbles */
+.chat-message {
+  margin-bottom: 14px;
+  max-width: 70%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  font-size: 15px;
+  line-height: 1.4;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.chat-message.sent {
+  background: #dcf8c6;   /* WhatsApp green bubble */
+  color: #000;
+  margin-left: auto;
+}
+
+.chat-message.received {
+  background: #fff;
+  color: #000;
+  margin-right: auto;
+  border: 1px solid #ddd;
+}
+
+/* 🔹 Timestamp */
+.chat-message small {
+  display: block;
+  font-size: 12px;
+  margin-top: 4px;
+  opacity: 0.6;
+  text-align: right;
+}
+
+/* 🔹 Reactions */
+.reactions {
+  margin-top: 4px;
+  display: flex;
+  gap: 4px;
+}
+
+.reactions span {
+  font-size: 14px;
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 12px;
+}
+
+/* 🔹 Typing indicator */
+.typing-indicator {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 6px 12px;
+  display: flex;
+  align-items: center;
+}
+
+.typing-indicator::after {
+  content: ' ...';
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 0.2; }
+  50% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+
+/* 🔹 Input row */
+.chat-input {
+  display: flex;
+  padding: 12px;
+  border-top: 1px solid #ddd;
+  background: #596580;
+}
+
+.chat-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.chat-input-row textarea {
+  flex: 1;
+  resize: none;
+  padding: 10px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  background: #fff;
+}
+
+/* 🔹 Buttons */
+.attach-btn,
+.emoji-btn {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.send-btn {
+  background-color: #40739e;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.send-btn:hover {
+  background: #2980b9;
+  transform: scale(1.05);
+}
+
+/* 🔹 Emoji picker */
+.emoji-picker {
+  position: absolute;
+  bottom: 70px;
+  left: 10px;
+  z-index: 1000;
+}
+
+/* 🔹 Attachments menu */
+.attachments-menu {
+  position: absolute;
+  bottom: 70px;
+  left: 60px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.attachments-menu button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: left;
+}
+
+/* 🔹 Mobile responsiveness */
+@media (max-width: 768px) {
+  .chats-layout {
+    flex-direction: column;
+  }
+
+  .chat-sidebar {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 10px;
+    box-shadow: none;
+    border-bottom: 1px solid #444;
+  }
+
+  .chat-main {
+    flex: 1;
+    height: calc(100vh - 70px);
+  }
+}

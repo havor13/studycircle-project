@@ -4,7 +4,6 @@ from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -23,7 +22,7 @@ ALLOWED_HOSTS = [
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
-    'django.contrib.auth',
+    'django.contrib.auth',          # ✅ still needed for auth framework
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -36,12 +35,12 @@ INSTALLED_APPS = [
     'channels',  # ✅ WebSocket support
 
     # Local apps
-    'users',
+    'users',        # ✅ custom user app
     'groups',
     'posts',
     'chats',
-    'search',  # ✅ Search app
-    'studyplanner',  # ✅ Study planner app
+    'search',
+    'studyplanner',
 ]
 
 MIDDLEWARE = [
@@ -73,7 +72,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'studycircle.wsgi.application'
-ASGI_APPLICATION = 'studycircle.asgi.application'  # ✅ Channels entrypoint
+ASGI_APPLICATION = 'studycircle.asgi.application'
 
 # Database (PostgreSQL)
 DATABASES = {
@@ -86,6 +85,7 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -132,22 +132,22 @@ CORS_ALLOW_CREDENTIALS = True
 
 # CSRF settings
 CSRF_TRUSTED_ORIGINS = [
-    "https://studycircle-project-1.onrender.com",  # ✅ your frontend domain
+    "https://studycircle-project-1.onrender.com",
     "http://localhost:3000",
     "http://127.0.0.1:8000"
 ]
 
-CSRF_COOKIE_SECURE = True        # only send over HTTPS
-CSRF_COOKIE_SAMESITE = 'None'    # allow cross-site requests
-SESSION_COOKIE_SECURE = True     # secure session cookies
-SESSION_COOKIE_SAMESITE = 'None' # allow cross-site requests
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'None'
 
 # Channels + Redis configuration
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],  # adjust if using Docker or remote Redis
+            "hosts": [("127.0.0.1", 6379)],
         },
     },
 }
