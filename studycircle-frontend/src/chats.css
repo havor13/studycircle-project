@@ -3,7 +3,7 @@
   display: flex;
   height: 100vh;
   font-family: "Segoe UI", Arial, sans-serif;
-  background: #e3e3e7;
+  background: #f6f6fa;
 }
 
 /* 🔹 Sidebar */
@@ -34,44 +34,68 @@
   flex: 1;
   padding: 20px;
   overflow-y: auto;
-  background: #4e5257;
+  background: #ece5dd; /* WhatsApp-like background */
 }
 
 /* 🔹 Chat bubbles */
-.chat-message {
+.chat-bubble {
   margin-bottom: 14px;
   max-width: 70%;
-  padding: 12px 16px;
-  border-radius: 18px;
+  padding: 10px 14px;
   font-size: 15px;
   line-height: 1.4;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
   position: relative;
+  word-wrap: break-word;
 }
 
-.chat-message.sent {
-  background: #dcf8c6;   /* WhatsApp green bubble */
+.chat-bubble.sent {
+  background: #dcf8c6;
   color: #000;
   margin-left: auto;
+  border-radius: 16px 16px 4px 16px; /* ✅ WhatsApp style */
 }
 
-.chat-message.received {
+.chat-bubble.received {
   background: #fff;
   color: #000;
   margin-right: auto;
   border: 1px solid #ddd;
+  border-radius: 16px 16px 16px 4px; /* ✅ WhatsApp style */
+}
+
+/* 🔹 Bubble content */
+.bubble-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 /* 🔹 Timestamp */
-.chat-message small {
+.timestamp {
   display: block;
-  font-size: 12px;
+  font-size: 11px;
   margin-top: 4px;
   opacity: 0.6;
   text-align: right;
 }
 
-/* 🔹 Reactions */
+/* 🔹 Attachments */
+.chat-image {
+  max-width: 200px;
+  border-radius: 8px;
+  margin-top: 6px;
+}
+
+.chat-file {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 14px;
+  color: #40739e;
+  text-decoration: none;
+}
+
+/* 🔹 Reactions (WhatsApp style) */
 .reactions {
   margin-top: 4px;
   display: flex;
@@ -79,10 +103,45 @@
 }
 
 .reactions span {
-  font-size: 14px;
-  background: #f0f0f0;
-  padding: 2px 6px;
-  border-radius: 12px;
+  font-size: 18px;       /* bigger emoji */
+  background: transparent;
+  padding: 0;
+  line-height: 1;
+}
+
+/* 🔹 Reaction buttons */
+.reaction-buttons {
+  margin-top: 4px;
+  display: flex;
+  gap: 6px;
+}
+
+.reaction-buttons button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.reaction-buttons button:hover {
+  opacity: 1;
+}
+
+/* 🔹 Edit button */
+.edit-btn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: #40739e;
+  cursor: pointer;
+  margin-top: 4px;
+  text-align: right;
+}
+
+.edit-btn:hover {
+  text-decoration: underline;
 }
 
 /* 🔹 Typing indicator */
@@ -110,13 +169,13 @@
   display: flex;
   padding: 12px;
   border-top: 1px solid #ddd;
-  background: #596580;
+  background: #f0f0f0;
 }
 
 .chat-input-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
 }
 
@@ -124,10 +183,10 @@
   flex: 1;
   resize: none;
   padding: 10px;
-  border-radius: 20px;
+  border-radius: 40px;
   border: 1px solid #ccc;
   font-size: 15px;
-  background: #fff;
+  background: #f7f4f4;
 }
 
 /* 🔹 Buttons */
@@ -162,6 +221,46 @@
   bottom: 70px;
   left: 10px;
   z-index: 1000;
+}
+
+/* 🔹 Reaction picker popup */
+.reaction-picker {
+  position: fixed;
+  bottom: 80px;                 /* sits above input row */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  max-height: 300px;
+  overflow-y: auto;
+  animation: fadeInUp 0.25s ease; /* smooth animation */
+}
+
+/* 🔹 Overlay to close picker when clicking outside */
+.reaction-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  z-index: 1999;
+}
+
+/* 🔹 Fade-in animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 
 /* 🔹 Attachments menu */
@@ -205,4 +304,26 @@
     flex: 1;
     height: calc(100vh - 70px);
   }
+}
+
+.chat-image-wrapper {
+  cursor: pointer;
+  display: inline-block;
+}
+
+.image-preview-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.image-preview {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
 }

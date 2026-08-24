@@ -8,13 +8,20 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
 from django.conf import settings
 from django.conf.urls.static import static
 
+# ✅ Import your chats viewsets
+from chats.views import ConversationViewSet, ThreadViewSet, MessageViewSet, MessageReadViewSet
+
 def home(request):
     return HttpResponse("Welcome to StudyCircle API. Available endpoints start with /api/")
 
-# Router for users + profiles
+# Router for users + profiles + chats
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
-router.register(r'profiles', ProfileViewSet, basename='profile')  # ✅ basename added
+router.register(r'profiles', ProfileViewSet, basename='profile')
+router.register(r'conversations', ConversationViewSet, basename='conversation')
+router.register(r'threads', ThreadViewSet, basename='thread')
+router.register(r'messages', MessageViewSet, basename='message')
+router.register(r'message_reads', MessageReadViewSet, basename='message_read')
 
 urlpatterns = [
     # Root homepage
@@ -29,10 +36,9 @@ urlpatterns = [
     path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
     # Modular API endpoints
-    path('api/', include(router.urls)),         # users + profiles
+    path('api/', include(router.urls)),         # users + profiles + conversations + threads + messages
     path('api/', include('groups.urls')),       # groups + group-members + resources
     path('api/', include('posts.urls')),        # posts + comments + likes
-    path('api/', include('chats.urls')),        # threads + messages
     path('api/', include('search.urls')),       # search endpoint
     path('planner/', include('studyplanner.urls')),
 

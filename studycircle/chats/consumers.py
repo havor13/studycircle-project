@@ -5,8 +5,8 @@ from django.contrib.auth.models import User
 from jwt import decode as jwt_decode, InvalidTokenError
 from django.db import close_old_connections
 from django.utils import timezone
-from chats.models import ChatMessage, ChatThread, ChatMessageReaction
-from chats.serializers import ChatMessageReactionSerializer  # ✅ import serializer
+from chats.models import Conversation, ChatMessage, ChatMessageReaction
+from chats.serializers import ChatMessageReactionSerializer
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -33,10 +33,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
-        # ✅ Room selection
-        self.thread_id = self.scope['url_route']['kwargs'].get('thread_id', None)
-        if self.thread_id:
-            self.room_group_name = f"chat_{self.thread_id}"
+        # ✅ Conversation selection
+        self.conversation_id = self.scope['url_route']['kwargs'].get('conversation_id', None)
+        if self.conversation_id:
+            self.room_group_name = f"chat_{self.conversation_id}"
         else:
             self.room_group_name = "general_room"
 
@@ -78,19 +78,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # 🔹 Handle normal messages
         content = data.get("message")
-        thread_id = data.get("thread", self.thread_id)
+        conversation_id = data.get("conversation", self.conversation_id)
 
-        thread = None
-        if thread_id:
+        conversation = None
+        if conversation_id:
             try:
-                thread = await ChatThread.objects.aget(pk=thread_id)
-            except ChatThread.DoesNotExist:
-                thread = None
+                conversation = await Conversation.objects.aget(pk=conversation_id)
+            except Conversation.DoesNotExist:
+                conversation = None
 
         msg_obj = None
-        if thread:
+        if conversation:
             msg_obj = await ChatMessage.objects.acreate(
-                thread=thread,
+                conversation=conversation,
                 sender=sender,
                 content=content
             )
@@ -103,7 +103,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "sender": sender.id,
                 "sender_username": sender.username,
                 "content": content,
-                "thread": thread_id,
+                "conversation": conversation_id,
                 "created_at": timezone.now().isoformat(),
             }
         )
@@ -114,7 +114,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             "sender": event.get("sender"),
             "sender_username": event.get("sender_username"),
             "content": event.get("content"),
-            "thread": event.get("thread"),
+            "conversation": event.get("conversation"),
             "created_at": event.get("created_at"),
         }))
 

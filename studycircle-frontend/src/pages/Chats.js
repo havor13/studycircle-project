@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { threadSearchApi } from '../api/api'; // ✅ use helper
+import React, { useState, useEffect, useCallback } from 'react';
 import '../chats.css';
 import ChatBox from '../components/ChatBox';
 import Sidebar from '../components/Sidebar';
@@ -12,34 +11,33 @@ const WS_BASE =
     : 'wss://studycircle-project.onrender.com/ws/chats';
 
 function Chats() {
-  const [threads, setThreads] = useState([]);
-  const [activeThread, setActiveThread] = useState(null);
+  const [conversations, setConversations] = useState([]);
+  const [activeConversation, setActiveConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [socket, setSocket] = useState(null);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState('');
 
   // 🔎 Local search state
-  const [threadSearchQuery, setThreadSearchQuery] = useState('');
-  const [threadSearchResults, setThreadSearchResults] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [searchError, setSearchError] = useState('');
 
-  // Load threads (run once on mount)
+  // Load conversations (run once on mount)
   useEffect(() => {
-    const fetchThreads = async () => {
+    const fetchConversations = async () => {
       try {
-        const res = await api.get('threads/');
-        setThreads(res.data);
+        const res = await api.get('conversations/');
+        setConversations(res.data);
         if (res.data.length > 0) {
-          setActiveThread(res.data[0]);
+          setActiveConversation(res.data[0]);
         }
       } catch (err) {
-        console.error('Failed to fetch threads:', err.response?.data || err.message);
+        console.error('Failed to fetch conversations:', err.response?.data || err.message);
       }
     };
-    fetchThreads();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchConversations();
   }, []);
 
   // Load users (run once on mount)
@@ -53,16 +51,15 @@ function Chats() {
       }
     };
     fetchUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Load messages for active thread
+  // Load messages for active conversation
   useEffect(() => {
-    if (activeThread) {
+    if (activeConversation) {
       const fetchMessages = async () => {
         try {
           const res = await api.get('messages/', {
-            params: { thread: activeThread.id }
+            params: { conversation: activeConversation.id }
           });
           setMessages(res.data);
         } catch (err) {
@@ -71,15 +68,14 @@ function Chats() {
       };
       fetchMessages();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeThread]);
+  }, [activeConversation]);
 
   // WebSocket connection
   useEffect(() => {
-    if (!activeThread) return;
+    if (!activeConversation) return;
 
     const token = localStorage.getItem('access');
-    const wsUrl = `${WS_BASE}/${activeThread.id}/?token=${token}`;
+    const wsUrl = `${WS_BASE}/${activeConversation.id}/?token=${token}`;
     const ws = new WebSocket(wsUrl);
     setSocket(ws);
 
@@ -87,18 +83,35 @@ function Chats() {
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        setMessages(prev => [
-          ...prev,
-          {
-            id: data.id,
-            sender: data.sender,
-            sender_username: data.sender_username,
-            content: data.content,
-            thread: data.thread,
-            created_at: data.created_at,
-            attachment_url: data.attachment_url || null,
-          }
-        ]);
+
+        if (data.type === 'reaction') {
+          // 🔹 Handle reaction events separately
+          setMessages(prev =>
+            prev.map(m =>
+              m.id === data.reaction.message
+                ? { ...m, reactions: [...(m.reactions || []), data.reaction] }
+                : m
+            )
+          );
+        } else {
+          // 🔹 Handle normal messages
+          setMessages(prev => {
+            // Avoid duplicates if REST already added the message
+            if (prev.some(m => m.id === data.id)) return prev;
+            return [
+              ...prev,
+              {
+                id: data.id,
+                sender: data.sender,
+                sender_username: data.sender_username,
+                content: data.content,
+                conversation: data.conversation,
+                created_at: data.created_at,
+                attachment_url: data.attachment_url || null,
+              }
+            ];
+          });
+        }
       } catch (err) {
         console.error('Error parsing WebSocket message:', err);
       }
@@ -110,18 +123,17 @@ function Chats() {
       ws.close();
       setSocket(null);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeThread]);
+  }, [activeConversation]);
 
   // Send message (text or file)
   const handleSend = async (msg) => {
-    if (!socket || !activeThread) return;
+    if (!socket || !activeConversation) return;
 
     try {
       let res;
       if (msg.file) {
         const formData = new FormData();
-        formData.append('thread', activeThread.id);
+        formData.append('conversation', activeConversation.id);
         formData.append('file', msg.file);
 
         res = await api.post('messages/upload/', formData, {
@@ -129,99 +141,102 @@ function Chats() {
         });
       } else {
         const payload = {
-          thread: activeThread.id,
+          conversation: activeConversation.id,
           content: typeof msg === 'string' ? msg : msg.content,
         };
         socket.send(JSON.stringify(payload));
         res = await api.post('messages/', payload);
       }
 
-      setMessages(prev => [...prev, res.data]);
+      // Avoid duplicates: only add if not already in state
+      setMessages(prev => (prev.some(m => m.id === res.data.id) ? prev : [...prev, res.data]));
     } catch (err) {
       console.error('Failed to send/save message:', err.response?.data || err.message);
     }
   };
 
-  // Start private chat
+  // Start private conversation
   const handleStartPrivateChat = async () => {
     if (!selectedUser) return;
     try {
       const userId = localStorage.getItem('userId');
-      const res = await api.post('threads/private/', {
+      const res = await api.post('conversations/private/', {
         user1: userId,
         user2: selectedUser
       });
-      setThreads(prev => [...prev, res.data]);
-      setActiveThread(res.data);
+      setConversations(prev => [...prev, res.data]);
+      setActiveConversation(res.data);
       setSelectedUser('');
     } catch (err) {
-      console.error('Failed to start private chat:', err.response?.data || err.message);
+      console.error('Failed to start private conversation:', err.response?.data || err.message);
     }
   };
 
-  // 🔎 Debounced local thread search
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      if (threadSearchQuery.trim() && activeThread) {
-        handleThreadSearch(threadSearchQuery);
-      } else {
-        setThreadSearchResults([]);
-      }
-    }, 300);
-
-    return () => clearTimeout(delayDebounce);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [threadSearchQuery, activeThread]);
-
-  const handleThreadSearch = async (q) => {
+  // ✅ Stable handleSearch with useCallback
+  const handleSearch = useCallback(async (q) => {
     setLoadingSearch(true);
     setSearchError('');
     try {
-      const res = await threadSearchApi(activeThread.id, q);
-      setThreadSearchResults(res.messages || []);
+      const res = await api.get(`messages/`, {
+        params: { conversation: activeConversation.id, q }
+      });
+      setSearchResults(res.data || []);
     } catch (err) {
       setSearchError('Search failed. Please try again.');
     } finally {
       setLoadingSearch(false);
     }
-  };
+  }, [activeConversation]);
+
+  // 🔎 Debounced local search
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (searchQuery.trim() && activeConversation) {
+        handleSearch(searchQuery);
+      } else {
+        setSearchResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchQuery, activeConversation, handleSearch]);
 
   return (
     <div className="chats-layout">
       <Sidebar
-        threads={threads}
-        activeThread={activeThread}
-        setActiveThread={setActiveThread}
+        conversations={conversations}
+        activeConversation={activeConversation}
+        setActiveConversation={setActiveConversation}
         users={users}
         selectedUser={selectedUser}
         setSelectedUser={setSelectedUser}
         handleStartPrivateChat={handleStartPrivateChat}
       />
       <div className="chat-main">
-        {/* 🔎 Local Thread Search Bar */}
-        <div className="thread-search">
+        {/* 🔎 Local Conversation Search Bar */}
+        <div className="conversation-search">
           <input
             type="text"
-            placeholder="Search messages in this thread..."
-            value={threadSearchQuery}
-            onChange={(e) => setThreadSearchQuery(e.target.value)}
+            placeholder="Search messages in this conversation..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
 
         {loadingSearch && <p className="search-status">⏳ Searching...</p>}
         {searchError && <p className="search-error">{searchError}</p>}
 
-        {threadSearchResults.length > 0 && (
+        {searchResults.length > 0 && (
           <div className="search-results">
             <h4>Messages Found</h4>
-            {threadSearchResults.map(m => (
+            {searchResults.map(m => (
               <p key={m.id}>📝 {m.sender_username}: {m.content}</p>
             ))}
           </div>
         )}
 
         <ChatBox
-          threadId={activeThread?.id}
+          conversationId={activeConversation?.id}
           onSend={handleSend}
           messages={messages}
         />

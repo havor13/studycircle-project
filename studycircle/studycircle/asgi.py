@@ -5,7 +5,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 import chats.routing
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'studycircle.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "studycircle.settings")
 django.setup()
 
 # Standard Django ASGI app for HTTP requests
@@ -16,7 +16,7 @@ application = ProtocolTypeRouter({
     "http": django_asgi_app,   # REST API, admin, etc.
     "websocket": AuthMiddlewareStack(
         URLRouter(
-            chats.routing.websocket_urlpatterns
+            chats.routing.websocket_urlpatterns  # ✅ matches /ws/chats/<conversation_id>/
         )
     ),
 })

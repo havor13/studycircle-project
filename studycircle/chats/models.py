@@ -11,12 +11,29 @@ class UserProfile(models.Model):
         return self.user.username
 
 
-# ✅ Chat Threads
-class ChatThread(models.Model):
+# ✅ Conversation (WhatsApp-style chat between users)
+class Conversation(models.Model):
+    participants = models.ManyToManyField(User, related_name="conversations")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Thread {self.id}"
+        names = ", ".join([u.username for u in self.participants.all()])
+        return f"Conversation {self.id} ({names})"
+
+
+# ✅ Chat Threads (optional grouping, e.g. project-based threads inside a conversation)
+class ChatThread(models.Model):
+    conversation = models.ForeignKey(
+        Conversation,
+        on_delete=models.CASCADE,
+        related_name="threads",
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Thread {self.id} in Conversation {self.conversation_id}"
 
 
 # ✅ Chat Participants
@@ -33,7 +50,20 @@ class ChatParticipant(models.Model):
 
 # ✅ Chat Messages (supports text + file attachments)
 class ChatMessage(models.Model):
-    thread = models.ForeignKey(ChatThread, on_delete=models.CASCADE, related_name="messages")
+    conversation = models.ForeignKey(
+        Conversation,
+        on_delete=models.CASCADE,
+        related_name="messages",
+        null=True,
+        blank=True
+    )
+    thread = models.ForeignKey(
+        ChatThread,
+        on_delete=models.CASCADE,
+        related_name="messages",
+        null=True,
+        blank=True
+    )
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
     content = models.TextField(blank=True)  # text is optional if file is attached
     attachment = models.FileField(
@@ -74,7 +104,7 @@ class ChatMessageReaction(models.Model):
     message = models.ForeignKey(
         ChatMessage,
         on_delete=models.CASCADE,
-        related_name="chat_reactions"   # 👈 unique related_name to avoid clash
+        related_name="chat_reactions"   # 👈 unique name to avoid clash
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     emoji = models.CharField(max_length=10)  # store emoji string like 👍 ❤️ 😂

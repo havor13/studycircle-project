@@ -2,33 +2,31 @@ import React, { useState } from 'react';
 import '../chats.css';
 
 function Sidebar({
-  threads,
-  activeThread,
-  setActiveThread,
+  conversations,
+  activeConversation,
+  setActiveConversation,
   users,
   selectedUser,
   setSelectedUser,
   handleStartPrivateChat
 }) {
-  const [showThreads, setShowThreads] = useState(true);
+  const [showConversations, setShowConversations] = useState(true);
 
-  const renderThreadButton = (thread) => {
-    const label = thread.is_group
-      ? thread.name || `Group #${thread.id}`
-      : Array.isArray(thread.participants)
-        ? thread.participants.map(p => p.username).join(', ')
-        : `Thread #${thread.id}`;
+  const renderConversationButton = (conv) => {
+    const label = Array.isArray(conv.participants)
+      ? conv.participants.map(p => p.username).join(', ')
+      : `Conversation #${conv.id}`;
 
     return (
       <button
-        key={thread.id}
+        key={conv.id}
         type="button"
-        className={`thread-btn ${activeThread?.id === thread.id ? 'active-tab' : ''}`}
-        onClick={() => setActiveThread(thread)}
+        className={`conversation-btn ${activeConversation?.id === conv.id ? 'active-tab' : ''}`}
+        onClick={() => setActiveConversation(conv)}
       >
-        <span className="thread-label">{label}</span>
-        {thread.unread_count > 0 && (
-          <span className="unread-badge">{thread.unread_count}</span>
+        <span className="conversation-label">{label}</span>
+        {conv.unread_count > 0 && (
+          <span className="unread-badge">{conv.unread_count}</span>
         )}
       </button>
     );
@@ -36,19 +34,19 @@ function Sidebar({
 
   return (
     <div className="chat-sidebar">
-      {/* Threads Section */}
+      {/* Conversations Section */}
       <h3
         className="sidebar-header"
-        onClick={() => setShowThreads(!showThreads)}
+        onClick={() => setShowConversations(!showConversations)}
       >
-        {showThreads ? '▼' : '▶'} Threads
+        {showConversations ? '▼' : '▶'} Conversations
       </h3>
-      {showThreads && (
-        <div className="thread-list">
-          {threads.length === 0 ? (
-            <p className="empty-threads">No threads yet</p>
+      {showConversations && (
+        <div className="conversation-list">
+          {conversations.length === 0 ? (
+            <p className="empty-conversations">No conversations yet</p>
           ) : (
-            threads.map(renderThreadButton)
+            conversations.map(renderConversationButton)
           )}
         </div>
       )}
